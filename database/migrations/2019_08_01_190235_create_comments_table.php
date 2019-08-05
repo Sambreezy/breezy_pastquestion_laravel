@@ -22,6 +22,7 @@ class CreateCommentsTable extends Migration
             $table->string('statement');
             $table->string('reply');
             $table->uuid('parent_id');
+            $table->string('user_picture')->nullable();
 
             // relations
             $table->uuid('past_question_id');

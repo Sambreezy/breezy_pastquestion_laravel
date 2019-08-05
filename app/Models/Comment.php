@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Ramsey\Uuid\Uuid;
@@ -21,6 +22,7 @@ class Comment extends Model
         'reply', 
         'parent_id', 
         'past_question_id', 
+        'user_picture',
         'user_id',
     ];
 

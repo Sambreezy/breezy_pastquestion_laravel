@@ -31,18 +31,18 @@ Route::group([
 Route::group([
 
     'middleware' => ['AlwaysRespondWithJson','api','VerifyJwtToken'],
-    'prefix' => 'v1'
+    'prefix' => 'v1/pastquestion'
 
 ], function ($router) {
 
     Route::get('index', 'PastQuestionController@index');
-    Route::get('index/personal', 'PastQuestionController@personalIndex');
-    Route::post('index/multisearch', 'PastQuestionController@multiSearchIndex');
-    Route::get('index/singlesearch', 'PastQuestionController@singleSearchIndex');
-    Route::post('index/create', 'PastQuestionController@store');
-    Route::get('index/show', 'PastQuestionController@show');
-    Route::post('index/edit', 'PastQuestionController@update');
-    Route::delete('index/delete', 'PastQuestionController@destroy');
-    Route::patch('index/restore', 'PastQuestionController@restore');
+    Route::get('personal', 'PastQuestionController@personalIndex');
+    Route::post('multisearch', 'PastQuestionController@multiSearchIndex');
+    Route::get('singlesearch', 'PastQuestionController@singleSearchIndex');
+    Route::post('create', 'PastQuestionController@store');
+    Route::get('show', 'PastQuestionController@show');
+    Route::post('edit', 'PastQuestionController@update');
+    Route::delete('delete', 'PastQuestionController@destroy');
+    Route::patch('restore', 'PastQuestionController@restore');
 
 });

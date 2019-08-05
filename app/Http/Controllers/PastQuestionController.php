@@ -26,13 +26,13 @@ class PastQuestionController extends Controller
         if ($past_questions) {
             
             if (count($past_questions) > 0) {
-                $this->success($past_questions);
+                return $this->success($past_questions);
             } else {
-               $this->notFound('Past questions were not found');
+               return $this->notFound('Past questions were not found');
             }
 
         } else {
-            $this->actionFailure('Currently unable to search for past questions');
+            return $this->actionFailure('Currently unable to search for past questions');
         }
     }
 
@@ -50,13 +50,13 @@ class PastQuestionController extends Controller
         if ($past_questions) {
             
             if (count($past_questions) > 0) {
-                $this->success($past_questions);
+                return $this->success($past_questions);
             } else {
-               $this->notFound('Past questions were not found');
+               return $this->notFound('Past questions were not found');
             }
 
         } else {
-            $this->actionFailure('Currently unable to search for past questions');
+            return $this->actionFailure('Currently unable to search for past questions');
         }
     }
 
@@ -84,13 +84,13 @@ class PastQuestionController extends Controller
         if ($past_questions) {
             
             if (count($past_questions) > 0) {
-                $this->success($past_questions);
+                return $this->success($past_questions);
             } else {
-               $this->notFound('Past questions were not found');
+               return $this->notFound('Past questions were not found');
             }
 
         } else {
-            $this->actionFailure('Currently unable to search for past questions');
+            return $this->actionFailure('Currently unable to search for past questions');
         }
     }
 
@@ -114,13 +114,13 @@ class PastQuestionController extends Controller
         if ($past_questions) {
             
             if (count($past_questions) > 0) {
-                $this->success($past_questions);
+                return $this->success($past_questions);
             } else {
-               $this->notFound('Past questions were not found');
+               return $this->notFound('Past questions were not found');
             }
 
         } else {
-            $this->actionFailure('Currently unable to search for past questions');
+            return $this->actionFailure('Currently unable to search for past questions');
         }
     }
 
@@ -146,9 +146,9 @@ class PastQuestionController extends Controller
         $past_question->fill($request->toArray());
 
         if ($past_question->save()) {
-            $this->actionSuccess('Past question was saved');
+            return $this->actionSuccess('Past question was saved');
         } else {
-            $this->actionFailure('Currently unable to save past question');
+            return $this->actionFailure('Currently unable to save past question');
         }
     }
 
@@ -167,9 +167,9 @@ class PastQuestionController extends Controller
         ])->find($request->input('id'));
 
         if ($past_question) {  
-            $this->success($past_question);
+            return $this->success($past_question);
         } else {
-            $this->notFound('Past question was not found');
+            return $this->notFound('Past question was not found');
         }
     }
 
@@ -198,18 +198,18 @@ class PastQuestionController extends Controller
         if ($past_question) {  
             
             if ($past_question->uploaded_by !== auth()->user()->id) {
-                $this->unauthorized('This past question was not uploaded by you');
+                return $this->unauthorized('This past question was not uploaded by you');
             }
 
             $past_question->fill($request->toarray());
             if ($past_question->save()) {
-                $this->actionSuccess('Past question was updated');
+                return $this->actionSuccess('Past question was updated');
             } else {
-                $this->actionFailure('Currently unable to update past question');
+                return $this->actionFailure('Currently unable to update past question');
             }
 
         } else {
-            $this->notFound('Past question was not found');
+            return $this->notFound('Past question was not found');
         }
     }
 
@@ -226,17 +226,17 @@ class PastQuestionController extends Controller
         if ($past_question) {  
             
             if ($past_question->uploaded_by !== auth()->user()->id) {
-                $this->unauthorized('This past question was not uploaded by you');
+                return $this->unauthorized('This past question was not uploaded by you');
             }
 
             if ($past_question->delete()) {
-                $this->actionSuccess('Past question was deleted');
+                return $this->actionSuccess('Past question was deleted');
             } else {
-                $this->actionFailure('Currently unable to delete past question');
+                return $this->actionFailure('Currently unable to delete past question');
             }
 
         } else {
-            $this->notFound('Past question was not found');
+            return $this->notFound('Past question was not found');
         }
     }
 
@@ -253,17 +253,17 @@ class PastQuestionController extends Controller
         if ($past_question) {  
             
             if ($past_question->uploaded_by !== auth()->user()->id) {
-                $this->unauthorized('This past question was not uploaded by you');
+                return $this->unauthorized('This past question was not uploaded by you');
             }
 
             if ($past_question->restore()) {
-                $this->actionSuccess('Past question was restored');
+                return $this->actionSuccess('Past question was restored');
             } else {
-                $this->actionFailure('Currently unable to restore past question');
+                return $this->actionFailure('Currently unable to restore past question');
             }
 
         } else {
-            $this->notFound('Past question was not found');
+            return $this->notFound('Past question was not found');
         }
     }
 }
