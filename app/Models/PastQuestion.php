@@ -25,6 +25,7 @@ class PastQuestion extends Model
         'year', 
         'tags', 
         'uploaded_by',
+        'user_id',
     ];
 
     /**

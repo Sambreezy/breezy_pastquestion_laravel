@@ -142,6 +142,11 @@ class PastQuestionController extends Controller
      */
     public function store(Request $request)
     {
+        $request->merge([
+            'user_id' => auth()->user()->id, 
+            'uploaded_by' => auth()->user()->id
+        ]);
+
         $past_question = new PastQuestion;
         $past_question->fill($request->toArray());
 
