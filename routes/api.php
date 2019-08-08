@@ -43,6 +43,6 @@ Route::group([
     Route::get('show', 'PastQuestionController@show');
     Route::post('edit', 'PastQuestionController@update');
     Route::delete('delete', 'PastQuestionController@destroy');
-    Route::patch('restore', 'PastQuestionController@restore');
+    Route::post('restore', 'PastQuestionController@restore');
 
 });

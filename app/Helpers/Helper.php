@@ -2,38 +2,15 @@
 
 namespace App\Helpers;
 
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Schema;
 use App\Helpers\MediaProcessors;
+use Ramsey\Uuid\Uuid;
 
 /**
  * Get page loading dependencies
  *
  */
-class Helper
+class Helper extends MediaProcessors
 {
-	/**
-     * Get a list of all columns with data types for specific table
-     *
-     *  @return array
-     */
-    public static function attributesList()
-    {
-        // $table_doctrine = DB::connection()->getDoctrineSchemaManager()->listTableColumns('listings_attributes');
-        // if ($table_doctrine) {
-        //     foreach ($table_doctrine as $key) {
-        //         $name = $key->getName();
-        //         $type = $key->getType()->getName();
-
-        //         if ($type == 'integer' || $type == 'boolean') {
-        //             $attributes_list[$name] = $type;
-        //         }
-        //     }
-        // }
-
-        // return $attributes_list;
-    }
-
     /**
      * Get general page options from options model
      *
@@ -58,94 +35,186 @@ class Helper
      * @param array $user_file
      * @param string $image_dir
      * @param string $identification
-     * @param integer $no_to_store
+     * @param integer $number_to_store
      * @return array $stored_images
      */
-    public static function batchStoreImages($user_file, $image_dir, $identification, $no_to_store = 8)
+    public static function batchStoreImages($user_file, $image_dir, $identification, $number_to_store = 8)
     {
-        $no_to_store = is_integer($no_to_store) ? $no_to_store : 8 ;
+        $number_to_store = is_integer($number_to_store) ? $number_to_store : 8 ;
 
-        if (is_uploaded_file($user_file[0])) {
-            // Ensure that only eight(8) or $no_to_store images are saved
-            for ($i=0; $i < $no_to_store; $i++) {
-                if (isset($user_file[$i])) {
-                    
-                    // Save image to storage
-                    $processed_media = MediaProcessors::storeImage($user_file[$i], $image_dir);
-                    if ($processed_media) {
-                        $stored_images[] = [
-                            'image_name' => $processed_media->file_name,
-                            'image_url'  => $processed_media->file_location,
-                            'listing_id' => $identification,
-                        ];
-                    } else {
-                        $stored_images[] = [
-                            'image_name' => 'no_image.jpg',
-                            'image_url'  => 'public/listings_images/no_image.jpg',
-                            'listing_id' => $identification,
-                        ];
-                    }
-                } 
+        // If no image is uploaded, try to return a single no image entry
+        if (!is_uploaded_file($user_file[0])) {
+
+            try {
+                $time = new \DateTime();
+
+                $stored_images[] = [
+                    'id' => Uuid::uuid4()->toString(),
+                    'image_name' => 'no_image.jpg',
+                    'image_url'  => $image_dir.'/no_image.jpg',
+                    'past_question_id' => $identification,
+                    'created_at' => $time->format('Y-m-d H:i:s'),
+                    'updated_at' => $time->format('Y-m-d H:i:s'),
+                ];
+            } catch (\Throwable $th) {
+                return false;
             }
-        } else {
-            $stored_images[] = [
-                'image_name' => 'no_image.jpg',
-                'image_url'  => 'public/listings_images/no_image.jpg',
-                'listing_id' => $identification,
-            ];
+
+            return $stored_images;
         }
-        return $stored_images;
+
+        
+        // Save image to storage
+        try {
+            // Ensure that only eight(8) or $number_to_store images are saved
+            for ($i=0; $i < $number_to_store; $i++) {
+
+                if (!isset($user_file[$i])) {
+                    throw new Exception("No file available");
+                }
+
+                $processed_media = self::storeImage($user_file[$i], $image_dir);
+                $time = new \DateTime();
+
+                if ($processed_media) {
+                    $stored_images[] = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'image_name' => $processed_media->file_name,
+                        'image_url'  => $processed_media->file_location,
+                        'past_question_id' => $identification,
+                        'created_at' => $time->format('Y-m-d H:i:s'),
+                        'updated_at' => $time->format('Y-m-d H:i:s'),
+                    ];
+                }
+            }
+        } catch (\Throwable $th) {
+
+            if (empty($stored_images)) {
+                try {
+                    $time = new \DateTime();
+
+                    $stored_images[] = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'image_name' => 'no_image.jpg',
+                        'image_url'  => $image_dir.'/no_image-1.jpg',
+                        'past_question_id' => $identification,
+                        'created_at' => $time->format('Y-m-d H:i:s'),
+                        'updated_at' => $time->format('Y-m-d H:i:s'),
+                    ];
+                } catch (\Throwable $th) {
+                    return false;
+                }
+            }
+        }
+
+        return empty($stored_images)? false : $stored_images;
     }
 
     /**
      * Unstore multiple images
      * 
      * @param array $user_file
-     * @param string $identification
-     * @param string $user_id
      * @return array $unstored_images
      * @return boolean false
      */
-    public static function batchUnstoreImages($user_file, $identification, $user_id)
+    public static function batchUnstoreImages($user_file)
     {
-        if ($user_file) {
+        try {
             foreach ($user_file as $key) {
 
                 // Unsave image from storage
-                $processed_media = MediaProcessors::unstoreImage($key->image_url);
+                $processed_media = self::unstoreImage($key->image_url);
                 if ($processed_media) {
-                    $unstored_images[] = true;
+                    $unstored_images[] = $key->image_name;
                 }
             }
+        } catch (\Throwable $th) {
 
-        } else {
-           return false;
+            if (empty($stored_images)) {
+                return false;
+            }
+
+            return $unstored_images;
         }
-        return $unstored_images;
     }
 
     /**
-     * Check the number of allowed user file upload
-     * @param array $all_user_uploaded_images
-     * @param integer $no_to_store
-     * @return integer
-     * @return boolean false
+     * Store multiple files
+     * 
+     * @param array $user_file
+     * @param string $doc_dir
+     * @param string $identification
+     * @param integer $number_to_store
+     * @return array $stored_files
      */
-    public static function numberOfAllowedUploads($all_user_uploaded_images, $no_to_store=8)
+    public static function batchStoreFile($user_file, $doc_dir, $identification, $number_to_store = 8)
     {
-        if(!isset($all_user_uploaded_images) || is_null($all_user_uploaded_images)){
+        $number_to_store = is_integer($number_to_store) ? $number_to_store : 8 ;
+
+        // If no doc is uploaded, try to return a single no doc entry
+        if (!is_uploaded_file($user_file[0])) {
             return false;
         }
+        
+        // Save doc to storage
+        try {
+            // Ensure that only eight(8) or $number_to_store files are saved
+            for ($i=0; $i < $number_to_store; $i++) {
 
-        if ($all_user_uploaded_images){
-            $no_user_uploaded_images = count($all_user_uploaded_images);
+                if (!isset($user_file[$i])) {
+                    throw new Exception("No file available");
+                }
 
-            if ($no_user_uploaded_images < $no_to_store) {
-               return $no_to_store - $no_user_uploaded_images;
+                $saved_file = self::storeFile($user_file[$i], $doc_dir);
+                $time = new \DateTime();
+
+                if ($saved_file) {
+                    $stored_files[] = [
+                        'id' => Uuid::uuid4()->toString(),
+                        'doc_name' => $saved_file->file_name,
+                        'doc_url'  => $saved_file->file_location,
+                        'past_question_id' => $identification,
+                        'created_at' => $time->format('Y-m-d H:i:s'),
+                        'updated_at' => $time->format('Y-m-d H:i:s'),
+                    ];
+                }
+            }
+        } catch (\Throwable $th) {
+
+            if (empty($stored_files)) {
+                return false;
             }
         }
 
-        return false;
+        return empty($stored_files)? false : $stored_files;
+    }
+
+    /**
+     * Unstore multiple files
+     * 
+     * @param array $user_file
+     * @return array $unstored_files
+     * @return boolean false
+     */
+    public static function batchUnstoreFile($user_file)
+    {
+        try {
+            foreach ($user_file as $key) {
+
+                // Unsave image from storage
+                $saved_file = self::unstoreFile($key->image_url);
+                if ($saved_file) {
+                    $unstored_files[] = $key->image_name;
+                }
+            }
+        } catch (\Throwable $th) {
+
+            if (empty($stored_files)) {
+                return false;
+            }
+
+            return $unstored_files;
+        }
     }
 
     /**
@@ -176,7 +245,6 @@ class Helper
      *
      * @param string $value
      * @param string $char
-     *
      * @return string
      */
     public static function escapeLikeForQuery(string $value, string $char = '\\'): string

@@ -18,8 +18,8 @@ class Document extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 
-        'url', 
+        'doc_name', 
+        'doc_url', 
         'past_question_id',
     ];
 

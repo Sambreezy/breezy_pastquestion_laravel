@@ -7,21 +7,59 @@ use App\Models\User;
 use App\Models\PastQuestion;
 use App\Models\Image;
 use App\Models\Document;
-use App\Models\Comment;
 use App\Helpers\Helper;
 
 class PastQuestionController extends Controller
 {
+
+    protected $NO_ALLOWED_UPLOADS = 10;
+
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $past_questions = PastQuestion::orderBy('created_at', 'desc')
-        ->take(500)
-        ->get();
+        /**
+         * Past questions are being returned with both approved and unapproved past questions
+         * Unapproved past questions should be separated during render
+         */
+        if ($request->input('status')){
+            
+            // Get all past questions that are active/approved or inactive/unapproved
+            $past_questions = PastQuestion::where('approved', (boolean)$request->input('status'))
+            ->with([
+                'image',
+                'document',
+            ])->take(500)
+            ->paginate(10);
+
+        } elseif ($request->input('properties')){
+            
+            // Get all past questions with all their relations
+            $past_questions = PastQuestion::with([
+                'image',
+                'document',
+            ])->take(500)
+            ->paginate(10);
+
+        } elseif ($request->input('deleted')){
+
+            // Get all deleted past questions with all their relations
+            $past_questions = PastQuestion::onlyTrashed()->with([
+                'image',
+                'document',
+            ])->take(500)
+            ->paginate(10);
+
+        } else {
+
+            // Get all past questions with out their relations
+            $past_questions = PastQuestion::orderBy('created_at', 'desc')
+            ->take(500)
+            ->paginate(10);
+        }
 
         if ($past_questions) {
             
@@ -67,18 +105,19 @@ class PastQuestionController extends Controller
      */
     public function multiSearchIndex(Request $request)
     {
-        $department = Helper::escapeLikeForQuery($request->input('department'));
-        $course_name = Helper::escapeLikeForQuery($request->input('course_name'));
-        $course_code = Helper::escapeLikeForQuery($request->input('course_code')); 
-        $semester = Helper::escapeLikeForQuery($request->input('semester'));
-        $year = Helper::escapeLikeForQuery($request->input('year'));
+        $department = is_null($request->input('department'))?$request->input('department'):Helper::escapeLikeForQuery($request->input('department'));
+        $course_name = is_null($request->input('course_name'))?$request->input('course_name'):Helper::escapeLikeForQuery($request->input('course_name'));
+        $course_code = is_null($request->input('course_code'))?$request->input('course_code'):Helper::escapeLikeForQuery($request->input('course_code'));
+        $semester = is_null($request->input('semester'))?$request->input('semester'):Helper::escapeLikeForQuery($request->input('semester'));
+        $year = is_null($request->input('year'))?$request->input('year'):Helper::escapeLikeForQuery($request->input('year'));
 
-        $past_questions = PastQuestion::where('department', 'like', $department)
-        ->where('course_name', 'like', $course_name)
-        ->where('course_code', 'like', $course_code)
-        ->where('semester', 'like', $semester)
-        ->where('year', 'like', $year)
+        $past_questions = PastQuestion::where('department', 'like', '%'.$department.'%')
+        ->where('course_name', 'like', '%'.$course_name.'%')
+        ->where('course_code', 'like', '%'.$course_code.'%')
+        ->where('semester', 'like', '%'.$semester.'%')
+        ->where('year', 'like', '%'.$year.'%')
         ->orderBy('created_at', 'desc')
+        ->take(500)
         ->get();
 
         if ($past_questions) {
@@ -101,14 +140,15 @@ class PastQuestionController extends Controller
      */
     public function singleSearchIndex(Request $request)
     {
-        $search = Helper::escapeLikeForQuery($request->input('search'));
+        $search = is_null($request->input('search'))?$request->input('search'):Helper::escapeLikeForQuery($request->input('search'));
 
-        $past_questions = PastQuestion::where('department', 'like', $search)
-        ->orWhere('course_name', 'like', $search)
-        ->orWhere('course_code', 'like', $search)
-        ->orWhere('semester', 'like', $search)
-        ->orWhere('year', 'like', $search)
+        $past_questions = PastQuestion::where('department', 'like', '%'.$search.'%')
+        ->orWhere('course_name', 'like', '%'.$search.'%')
+        ->orWhere('course_code', 'like', '%'.$search.'%')
+        ->orWhere('semester', 'like', '%'.$search.'%')
+        ->orWhere('year', 'like', '%'.$search.'%')
         ->orderBy('created_at', 'desc')
+        ->take(500)
         ->get();
 
         if ($past_questions) {
@@ -150,11 +190,33 @@ class PastQuestionController extends Controller
         $past_question = new PastQuestion;
         $past_question->fill($request->toArray());
 
-        if ($past_question->save()) {
-            return $this->actionSuccess('Past question was saved');
-        } else {
+        // Save past question details
+        if (!$past_question->save()) {
             return $this->actionFailure('Currently unable to save past question');
         }
+
+        // Check if photos were submitted 
+        if (!is_null($request->file('photos')) && is_array($request->file('photos'))) {
+            $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, $this->NO_ALLOWED_UPLOADS);
+
+            // Save past question images
+            if (!$processed_images || !Image::insert($processed_images)) {
+                return $this->actionFailure('Currently unable to save images');
+            }
+        }
+
+        // Check if documents were submitted 
+        if (!is_null($request->file('docs')) && is_array($request->file('docs'))) {
+            $processed_docs = Helper::batchStoreFile($request->file('docs'), 'public/documents', $past_question->id, $this->NO_ALLOWED_UPLOADS);
+
+            // Save past question documents
+            if (!$processed_docs || !Document::insert($processed_docs)) {
+                return $this->actionFailure('Currently unable to save documents');
+            }
+        }
+
+        // return success
+        return $this->actionSuccess('Past question was saved');
     }
 
     /**
@@ -168,7 +230,6 @@ class PastQuestionController extends Controller
         $past_question = PastQuestion::with([
             'image',
             'document',
-            'comment',
         ])->find($request->input('id'));
 
         if ($past_question) {  
@@ -196,22 +257,79 @@ class PastQuestionController extends Controller
      * @param  string  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    public function update(Request $request)
     {
         $past_question = PastQuestion::find($request->input('id'));
 
-        if ($past_question) {  
+        if ($past_question) {
             
+            // Validate past question owner
             if ($past_question->uploaded_by !== auth()->user()->id) {
                 return $this->unauthorized('This past question was not uploaded by you');
             }
 
-            $past_question->fill($request->toarray());
-            if ($past_question->save()) {
-                return $this->actionSuccess('Past question was updated');
-            } else {
+            $new_request = $request->except(['id','user_id', 'uploaded_by']);
+            $past_question->fill($new_request);
+
+            // Save past question details
+            if (!$past_question->save()) {
                 return $this->actionFailure('Currently unable to update past question');
             }
+
+            // Check if photos were submitted 
+            if (!is_null($request->file('photos')) && is_array($request->file('photos'))) {
+
+                // Load pervious uploaded images and count them
+                if ($past_question_images = $past_question->load('image') 
+                    && $number_of_previous_images = count($past_question_images->image->toArray())) {
+
+                    // Calculate new number of allowed image uploads
+                    if ($number_of_previous_images < $this->NO_ALLOWED_UPLOADS) {
+                        $this->NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_images;
+
+                        // Store new images to server or cloud
+                        $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, $this->NO_ALLOWED_UPLOADS);
+
+                        // Save past question images
+                        if (!$processed_images || !Image::insert($processed_images)) {
+                            return $this->actionFailure('Currently unable to save images');
+                        }
+                    }
+
+                    return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' images are allowed');
+                }
+
+                return $this->actionFailure('Currently unable to process image records');
+            }
+
+            // Check if documents were submitted 
+            if (!is_null($request->file('docs')) && is_array($request->file('docs'))) {
+
+                // Load pervious uploaded documents and count them
+                if ($past_question_docs = $past_question->load('image') 
+                    && $number_of_previous_docs = count($past_question_docs->image->toArray())) {
+
+                    // Calculate new number of allowed document uploads
+                    if ($number_of_previous_docs < $this->NO_ALLOWED_UPLOADS) {
+                        $this->NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_docs;
+
+                        // Store new documents to server or cloud
+                        $processed_docs = Helper::batchStoreFile($request->file('docs'), 'public/documents', $past_question->id, $this->NO_ALLOWED_UPLOADS);
+
+                        // Save past question documents
+                        if (!$processed_docs || !Document::insert($processed_docs)) {
+                            return $this->actionFailure('Currently unable to save documents');
+                        }
+                    }
+
+                    return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' documents are allowed');
+                }
+
+                return $this->actionFailure('Currently unable to process document records');
+            }
+
+            // return success
+            return $this->actionSuccess('Past question was updated');
 
         } else {
             return $this->notFound('Past question was not found');
@@ -227,9 +345,9 @@ class PastQuestionController extends Controller
     public function destroy(Request $request)
     {
         $past_question = PastQuestion::find($request->input('id'));
-        
+
         if ($past_question) {  
-            
+
             if ($past_question->uploaded_by !== auth()->user()->id) {
                 return $this->unauthorized('This past question was not uploaded by you');
             }

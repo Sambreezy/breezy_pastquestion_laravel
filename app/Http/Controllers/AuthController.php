@@ -36,11 +36,21 @@ class AuthController extends Controller
         if ($user) {
             if (Hash::check($request->input('password'), $user->password)) {
                 $token = auth()->login($user);
-                return $this->respondWithToken($token);
+
+                return $this->success([
+                    'id'    => $user->id,
+                    'name'  => $user->name,
+                    'email' => $user->email,
+                    'phone' => $user->phone,
+                    'votes' => $user->votes,
+                    'picture' => $user->picture,
+                    'description' => $user->description,
+                    'jwt'   => $this->respondWithToken($token),
+                ]);
             }
         }
 
-        return response()->json(['error' =>  Hash::make($request->input('password'))], 401);
+        return $this->unauthorized('Incorrect Login details');
     }
 
     /**
@@ -54,7 +64,7 @@ class AuthController extends Controller
 
         // Check if email exsits
         if (User::where('email', $request->input('email'))->first()) {
-            return response()->json(['error' => 'Email has been taken'], 409);
+            return $this->actionFailure('Email has been taken');
         }
 
         // Check if a name is available 
@@ -66,10 +76,10 @@ class AuthController extends Controller
             'phone' => $request->input('phone'),
             'password' => Hash::make($request->input('password')),
         ])){
-            return response()->json(['error' => 'Failed to save details'], 409);
+            return $this->actionFailure('Failed to save details');
         }
 
-        return response()->json(['message' => 'Registration Successfull', 'redirect' => 'login'], 200);
+        return $this->actionSuccess('Registration Successfull');
     }
 
     /**
@@ -79,7 +89,7 @@ class AuthController extends Controller
      */
     public function me()
     {
-        return response()->json(auth()->user());
+        return $this->success(auth()->user());
     }
 
     /**
@@ -91,7 +101,7 @@ class AuthController extends Controller
     {
         auth()->logout();
 
-        return response()->json(['message' => 'Successfully logged out']);
+        return $this->actionSuccess('Successfully logged out');
     }
 
     /**
@@ -101,7 +111,7 @@ class AuthController extends Controller
      */
     public function refresh()
     {
-        return $this->respondWithToken(auth()->refresh());
+        return $this->success($this->respondWithToken(auth()->refresh()));
     }
 
     /**

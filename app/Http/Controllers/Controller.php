@@ -11,7 +11,7 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
-    //HTTP status codes
+    // HTTP status codes
     static $HTTP_NOT_FOUND = 404;
     static $HTTP_OK = 200;
     static $HTTP_UNPROCESSABLE_ENTITY = 422;
@@ -21,28 +21,6 @@ class Controller extends BaseController
     static $HTTP_CONFLICT= 409;
     static $FAILED = 'failed';
     static $SUCCESS = 'success';
-     
-    /**
-     * Returns a server current time in json format
-     * 
-     * @param void
-     * @return json
-     */
-    public static function currentTime(){
-        $carbon = Carbon::now();
-        $info = [
-            "status" => self::$SUCCESS,
-            "status_code" => self::$HTTP_OK,
-            'message' => 'Current Time',
-            "data" => [
-                'currentTime' => $carbon->format('l, jS F Y'),
-                'currentYear' => $carbon->format('Y'),
-                'todayDate'  => $carbon
-            ]
-        ];
-        return response()->json($info,self::$HTTP_OK);
-    }
- 
  
     /**
      * Returns a json when data is not found

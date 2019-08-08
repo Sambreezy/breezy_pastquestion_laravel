@@ -19,8 +19,8 @@ class CreateImagesTable extends Migration
             $table->uuid('id')->primary();
 
             // images
-            $table->string('name');
-            $table->string('url');
+            $table->string('image_name');
+            $table->string('image_url');
 
             // relations
             $table->uuid('past_question_id');

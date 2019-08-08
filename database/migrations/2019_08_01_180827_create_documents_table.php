@@ -19,8 +19,8 @@ class CreateDocumentsTable extends Migration
             $table->uuid('id')->primary();
 
             // documents
-            $table->string('name');
-            $table->string('url');
+            $table->string('doc_name');
+            $table->string('doc_url');
 
             // relations
             $table->uuid('past_question_id');

@@ -18,8 +18,8 @@ class Image extends Model
      * @var array
      */
     protected $fillable = [
-        'name', 
-        'url', 
+        'image_name', 
+        'image_url', 
         'past_question_id',
     ];
 
