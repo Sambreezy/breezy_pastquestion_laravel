@@ -21,7 +21,12 @@ class AlwaysRespondWithJson
         
         $acceptHeader = $request->header('Accept');
         if ($acceptHeader != 'application/json') {
-            return response()->json(['error' => 'Header must Accept:application/json'], 400);
+            return response()->json([
+                "status" => 'failed',
+                "status_code" => 400,
+                "message" => 'Header must Accept:application/json',
+                "redirect" =>'login',
+            ], 400);
         }
         return $next($request);
     }

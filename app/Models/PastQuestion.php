@@ -76,19 +76,28 @@ class PastQuestion extends Model
         parent::boot();
 
         // While creating this model make an id
-        self::creating(function ($model) {
-            $model->id = Uuid::uuid4()->toString();
+        static::creating(function (self $model) {
+            $model->id = Uuid::uuid4()->toString();            
         });
 
         // While deleting this model delete some of its related models
-        self::deleted(function($model) {
+        static::deleted(function(self $model) {
             $model->image()->where('deleted_at', NULL)->delete();
             $model->document()->where('deleted_at', NULL)->delete();
             $model->comment()->where('deleted_at', NULL)->delete();
         });
 
+        // While force deleting this model force delete some of its related models
+        static::deleting(function(self $model) {
+            if ($model->forceDeleting) {
+                $model->image()->forceDelete();
+                $model->document()->forceDelete();
+                $model->comment()->forceDelete();
+            }
+        });
+
         // While restoring this model restore some of its related models
-        self::restored(function($model) {
+        static::restored(function(self $model) {
             $model->image()->onlyTrashed()->restore();
             $model->document()->onlyTrashed()->restore();
             $model->comment()->onlyTrashed()->restore();

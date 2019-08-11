@@ -8,15 +8,35 @@ use App\Models\PastQuestion;
 use App\Models\Image;
 use App\Models\Document;
 use App\Helpers\Helper;
+use App\Http\Requests\PastQuestionStoreRequest;
+use App\Http\Requests\PastQuestionUpdateRequest;
+use App\Http\Requests\PastQuestionSingleRequest;
+use App\Http\Requests\PastQuestionMultipleRequest;
+
 
 class PastQuestionController extends Controller
 {
-
     protected $NO_ALLOWED_UPLOADS = 10;
+
+    /**
+     * Create a new AuthController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api');
+        $this->middleware("VerifyRankToken:$this->USER_LEVEL_3", [
+            'only' => ['permanentDestroy','batchpermanentDestroy']
+        ]);
+    }
 
     /**
      * Display a listing of the resource.
      *
+     * @param  boolean  $status
+     * @param  boolean  $properties
+     * @param  boolean  $deleted
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -77,13 +97,47 @@ class PastQuestionController extends Controller
     /**
      * Display a specific listing of the resource.
      *
+     * @param  boolean  $status
+     * @param  boolean  $properties
+     * @param  boolean  $deleted
      * @return \Illuminate\Http\Response
      */
     public function personalIndex(Request $request)
     {
-        $past_questions = PastQuestion::where('uploaded_by', auth()->user()->id)
-        ->orderBy('created_at', 'desc')
-        ->get();
+        /**
+         * Past questions are being returned with both approved and unapproved past questions
+         * Unapproved past questions should be separated during render
+         */
+        if ($request->input('status')){
+            
+            // Get all past questions that are active/approved or inactive/unapproved
+            $past_questions = PastQuestion::where('approved', (boolean)$request->input('status'))
+            ->where('uploaded_by', auth()->user()->id)
+            ->with(['image','document',])->take(500)
+            ->paginate(10);
+
+        } elseif ($request->input('properties')){
+            
+            // Get all past questions with all their relations
+            $past_questions = PastQuestion::where('uploaded_by', auth()->user()->id)
+            ->with(['image','document',])->take(500)
+            ->paginate(10);
+
+        } elseif ($request->input('deleted')){
+
+            // Get all deleted past questions with all their relations
+            $past_questions = PastQuestion::where('uploaded_by', auth()->user()->id)
+            ->onlyTrashed()
+            ->with(['image','document',])->take(500)
+            ->paginate(10);
+
+        } else {
+
+            // Get all past questions with out their relations
+            $past_questions = PastQuestion::where('uploaded_by', auth()->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        }
 
         if ($past_questions) {
             
@@ -101,6 +155,7 @@ class PastQuestionController extends Controller
     /**
      * Search for specific listing of the resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function multiSearchIndex(Request $request)
@@ -136,6 +191,7 @@ class PastQuestionController extends Controller
     /**
      * Search for specific listing of the resource.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function singleSearchIndex(Request $request)
@@ -180,7 +236,7 @@ class PastQuestionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
+    public function store(PastQuestionStoreRequest $request)
     {
         $request->merge([
             'user_id' => auth()->user()->id, 
@@ -225,7 +281,7 @@ class PastQuestionController extends Controller
      * @param  string  $id
      * @return \Illuminate\Http\Response
      */
-    public function show(Request $request)
+    public function show(PastQuestionSingleRequest $request)
     {
         $past_question = PastQuestion::with([
             'image',
@@ -254,10 +310,9 @@ class PastQuestionController extends Controller
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  string  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request)
+    public function update(PastQuestionUpdateRequest $request)
     {
         $past_question = PastQuestion::find($request->input('id'));
 
@@ -280,52 +335,53 @@ class PastQuestionController extends Controller
             if (!is_null($request->file('photos')) && is_array($request->file('photos'))) {
 
                 // Load pervious uploaded images and count them
-                if ($past_question_images = $past_question->load('image') 
-                    && $number_of_previous_images = count($past_question_images->image->toArray())) {
+                if ($past_question_images = $past_question->load('image')) {
+                    $number_of_previous_images = count($past_question_images->image->toArray());
 
                     // Calculate new number of allowed image uploads
                     if ($number_of_previous_images < $this->NO_ALLOWED_UPLOADS) {
-                        $this->NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_images;
+                        $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_images;
 
                         // Store new images to server or cloud
-                        $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, $this->NO_ALLOWED_UPLOADS);
+                        $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, $NEW_NO_ALLOWED_UPLOADS);
 
                         // Save past question images
                         if (!$processed_images || !Image::insert($processed_images)) {
                             return $this->actionFailure('Currently unable to save images');
                         }
+                    } else {
+                        return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' images are allowed');
                     }
 
-                    return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' images are allowed');
+                } else {
+                    return $this->actionFailure('Currently unable to process image records');
                 }
-
-                return $this->actionFailure('Currently unable to process image records');
             }
 
             // Check if documents were submitted 
             if (!is_null($request->file('docs')) && is_array($request->file('docs'))) {
 
                 // Load pervious uploaded documents and count them
-                if ($past_question_docs = $past_question->load('image') 
-                    && $number_of_previous_docs = count($past_question_docs->image->toArray())) {
+                if ($past_question_docs = $past_question->load('document') ) {
+                    $number_of_previous_docs = count($past_question_docs->document->toArray());
 
                     // Calculate new number of allowed document uploads
                     if ($number_of_previous_docs < $this->NO_ALLOWED_UPLOADS) {
-                        $this->NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_docs;
+                        $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_docs;
 
                         // Store new documents to server or cloud
-                        $processed_docs = Helper::batchStoreFile($request->file('docs'), 'public/documents', $past_question->id, $this->NO_ALLOWED_UPLOADS);
+                        $processed_docs = Helper::batchStoreFile($request->file('docs'), 'public/documents', $past_question->id, $NEW_NO_ALLOWED_UPLOADS);
 
                         // Save past question documents
                         if (!$processed_docs || !Document::insert($processed_docs)) {
                             return $this->actionFailure('Currently unable to save documents');
                         }
+                    } else {
+                        return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' documents are allowed');
                     }
-
-                    return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' documents are allowed');
+                } else {
+                    return $this->actionFailure('Currently unable to process document records');
                 }
-
-                return $this->actionFailure('Currently unable to process document records');
             }
 
             // return success
@@ -339,10 +395,10 @@ class PastQuestionController extends Controller
     /**
      * Remove the specified resource from storage.
      *
-     * @param  string  $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Request $request)
+    public function destroy(PastQuestionSingleRequest $request)
     {
         $past_question = PastQuestion::find($request->input('id'));
 
@@ -364,12 +420,45 @@ class PastQuestionController extends Controller
     }
 
     /**
-     * Retrun the specified resource from trash.
+     * Remove the specified resources from storage.
      *
-     * @param  string  $id
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function restore(Request $request)
+    public function batchDestroy(PastQuestionMultipleRequest $request)
+    {
+        // Gets all the past questions in the array by id
+        $past_questions = PastQuestion::whereIn('id', $request->input('past_questions'))->get();
+        if ($past_questions) {
+
+            // Deletes all found past questions
+            $filtered = $past_questions->filter(function ($value, $key) {
+                if ($value->uploaded_by === auth()->user()->id) {
+                    if ($value->delete()) {
+                        return $value;
+                    }
+                }
+            });
+
+            // Checkes if any past questions were deleted
+            if (($deleted = count($filtered)) > 0) {
+                return $this->actionSuccess("$deleted Past question(s) deleted");
+            } else {
+                return $this->actionFailure('Currently unable to delete past question(s)');
+            }
+
+        } else {
+            return $this->notfound('Past question(s) not found');
+        }
+    }
+
+    /**
+     * Retrun the specified resource from trash.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function restore(PastQuestionSingleRequest $request)
     {
         $past_question = PastQuestion::onlyTrashed()->find($request->input('id'));
         
@@ -389,4 +478,105 @@ class PastQuestionController extends Controller
             return $this->notFound('Past question was not found');
         }
     }
+
+    /**
+     * Retrun the specified resources from trash.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function batchRestore(PastQuestionMultipleRequest $request)
+    {
+        // Gets all the past questions in the array by id
+        $past_questions = PastQuestion::onlyTrashed()
+        ->whereIn('id', $request->input('past_questions'))
+        ->get();
+
+        if ($past_questions) {
+
+            // Restores all found deleted past questions
+            $filtered = $past_questions->filter(function ($value, $key) {
+                if ($value->uploaded_by === auth()->user()->id) {
+                    if ($value->restore()) {
+                        return $value;
+                    }
+                }
+            });
+
+            // Checkes if any past questions were restored
+            if (($restored = count($filtered)) > 0) {
+                return $this->actionSuccess("$restored Past question(s) restored");
+            } else {
+                return $this->actionFailure('Currently unable to restore past question(s)');
+            }
+
+        } else {
+            return $this->notfound('Past question(s) not found');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function permanentDestroy(PastQuestionSingleRequest $request)
+    {
+        // Check access level
+        if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
+            return $this->unauthorized('Please contact management');
+        }
+
+        // Find the past question
+        $past_question = PastQuestion::find($request->input('id'));
+        if ($past_question) {
+
+            if ($past_question->forceDelete()) {
+                return $this->actionSuccess('Past question was deleted');
+            } else {
+                return $this->actionFailure('Currently unable to delete past question');
+            }
+
+        } else {
+            return $this->notFound('Past question was not found');
+        }
+    }
+
+    /**
+     * Remove the specified resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function batchpermanentDestroy(PastQuestionMultipleRequest $request)
+    {
+        // Check access level
+        if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
+            return $this->unauthorized('Please contact management');
+        }
+
+        // Gets all the past questions in the array by id
+        $past_questions = PastQuestion::whereIn('id', $request->input('past_questions'))->get();
+        if ($past_questions) {
+
+            // Deletes all found past questions
+            $filtered = $past_questions->filter(function ($value, $key) {
+                if ($value->forceDelete()) {
+                    return $value;
+                }
+            });
+
+            // Checkes if any past questions were deleted
+            if (($deleted = count($filtered)) > 0) {
+                return $this->actionSuccess("$deleted Past question(s) deleted");
+            } else {
+                return $this->actionFailure('Currently unable to delete past question(s)');
+            }
+
+        } else {
+            return $this->notfound('Past question(s) not found');
+        }
+    }
+
 }

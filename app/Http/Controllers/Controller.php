@@ -11,6 +11,11 @@ class Controller extends BaseController
 {
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 
+    // Admin Level Token
+    protected $USER_LEVEL_3 = 'SuPeRuPeraDmIn';
+    protected $USER_LEVEL_2 = 'TeMpOrAlAdMins';
+    protected $USER_LEVEL_1 = 'user';
+
     // HTTP status codes
     static $HTTP_NOT_FOUND = 404;
     static $HTTP_OK = 200;
@@ -26,13 +31,15 @@ class Controller extends BaseController
      * Returns a json when data is not found
      *
      * @param string $message
+     * @param string $redirect
      * @return json
      */
-    public function notFound($message){
+    public function notFound($message, $redirect=''){
         $info = [
             "status" => self::$FAILED,
             "status_code" => self::$HTTP_NOT_FOUND,
-            'message' => $message,
+            "message" => $message,
+            "redirect" => $redirect,
         ];
         return response()->json($info,self::$HTTP_NOT_FOUND);
     }
@@ -52,7 +59,7 @@ class Controller extends BaseController
             'status' => self::$FAILED,
             'errors' => $errors, 
             'status_code' => self::$HTTP_UNPROCESSABLE_ENTITY, 
-            'message' => $message,
+            "message" => $message,
         ];
         return response()->json($info,self::$HTTP_UNPROCESSABLE_ENTITY);
     }
@@ -62,13 +69,15 @@ class Controller extends BaseController
      * Returns json stating why a request is unauthorized
      * 
      * @param string $message
+     * @param string $redirect
      * @return json
      */
-    public function unauthorized($message){
+    public function unauthorized($message, $redirect=''){
         $info = [
             "status" => self::$FAILED,
             "status_code" => self::$HTTP_UNAUTHORIZED,
-            'message' => $message,
+            "message" => $message,
+            "redirect" => $redirect,
         ];
         return response()->json($info,self::$HTTP_UNAUTHORIZED);
     }
@@ -84,7 +93,7 @@ class Controller extends BaseController
             "data" => $data,
             "status" => self::$SUCCESS,
             "status_code" => self::$HTTP_OK,
-            'message' => 'successful',
+            "message" => "successful",
         ];
         return response()->json($info,self::$HTTP_OK);
     }
@@ -93,13 +102,15 @@ class Controller extends BaseController
      * Returns json stating why data creation succeeded
      * 
      * @param string $message
+     * @param string $redirect
      * @return json
      */
-    public function actionSuccess($message){
+    public function actionSuccess($message, $redirect=''){
         $info = [
             "status" => self::$SUCCESS,
             "status_code" => self::$HTTP_OK,
-            'message' => $message,
+            "message" => $message,
+            "redirect" => $redirect,
         ];
         return response()->json($info,self::$HTTP_OK);
     }
@@ -108,13 +119,15 @@ class Controller extends BaseController
      * Returns json stating process failure due to improper request
      * 
      * @param string $message
+     * @param string $redirect
      * @return json
      */
-    public function failure($message){
+    public function failure($message, $redirect=''){
         $info = [
             "status" => self::$FAILED,
             "status_code" => self::$HTTP_BAD_REQUEST,
-            'message' => $message,
+            "message" => $message,
+            "redirect" => $redirect,
         ];
         return response()->json($info,self::$HTTP_BAD_REQUEST);
     }
@@ -123,13 +136,15 @@ class Controller extends BaseController
      * Returns json stating why process failed
      * 
      * @param string $message
+     * @param string $redirect
      * @return json
      */
-    public function actionFailure($message){
+    public function actionFailure($message, $redirect=''){
         $info = [
             "status" => self::$FAILED,
             "status_code" => self::$HTTP_CONFLICT,
-            'message' => $message,
+            "message" => $message,
+            "redirect" => $redirect,
         ];
         return response()->json($info,self::$HTTP_CONFLICT);
     }
@@ -138,13 +153,15 @@ class Controller extends BaseController
      * Returns json stating why process is not permitted
      * 
      * @param string $message
+     * @param string $redirect
      * @return json
      */
-    public function forbidden($message){
+    public function forbidden($message, $redirect=''){
         $info = [
             "status" => self::$FAILED,
             "status_code" => self::$HTTP_FORBIDDEN,
-            'message' => $message,
+            "message" => $message,
+            "redirect" => $redirect,
         ];
         return response()->json($info,self::$HTTP_FORBIDDEN);
     }

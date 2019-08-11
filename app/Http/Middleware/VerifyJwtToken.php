@@ -23,20 +23,23 @@ class VerifyJwtToken
         } catch (Exception $e) {
             if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenInvalidException){
                 return response()->json([
-                    'status' => 'Token is Invalid',
-                    'error' => 'Please Login',
+                    'status' => 'failed',
+                    'status_code' => 401,
+                    'message' => 'Token is Invalid',
                     'redirect' =>'login'
                 ],401);
             } else if ($e instanceof \Tymon\JWTAuth\Exceptions\TokenExpiredException){
                 return response()->json([
-                    'status' => 'Token is Expired',
-                    'error' => 'Please Login',
+                    'status' => 'failed',
+                    'status_code' => 401,
+                    'message' => 'Token is Expired',
                     'redirect' =>'login'
                 ], 401);
             } else {
                 return response()->json([
-                    'status' => 'Authorization Token not found',
-                    'error' => 'Please Login',
+                    'status' => 'failed',
+                    'status_code' => 401,
+                    'message' => 'Authorization Token not found',
                     'redirect' =>'login'
                 ], 401);
             }

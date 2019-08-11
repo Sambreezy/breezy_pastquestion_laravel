@@ -62,6 +62,7 @@ class Kernel extends HttpKernel
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'AlwaysRespondWithJson' => \App\Http\Middleware\AlwaysRespondWithJson::class,
         'VerifyJwtToken' => \App\Http\Middleware\VerifyJwtToken::class,
+        'VerifyRankToken' => \App\Http\Middleware\VerifyRankToken::class,
     ];
 
     /**
