@@ -21,6 +21,7 @@ class Image extends Model
         'image_name', 
         'image_url', 
         'past_question_id',
+        'uploaded_by',
     ];
 
     /**

@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class PastQuestionMultipleRequest extends FormRequest
+class ImageSingleRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class PastQuestionMultipleRequest extends FormRequest
     public function rules()
     {
         return [
-            'past_questions' => 'required|array|max:25',
-            'past_questions.*' => 'required_unless:past_questions,'.null.'|uuid|max:100',
+            'id' => 'required|uuid|max:100',
         ];
     }
 
@@ -37,10 +36,9 @@ class PastQuestionMultipleRequest extends FormRequest
     public function messages()
     {
         return [
-            'past_questions.required' => 'A past question is required',
-            'past_questions.array' => 'Past questions selection must be in the required type',
-            'past_questions.max' => 'Past questions selection can not have more than 25 items',
-            'past_questions.*' => 'An id selection character is not valid',
+            'id.required' => 'An id is required',
+            'id.uuid' => 'ID characters are not valid',
+            'id.max' => 'An id can not have more than 100 characters',
         ];
     }
 }

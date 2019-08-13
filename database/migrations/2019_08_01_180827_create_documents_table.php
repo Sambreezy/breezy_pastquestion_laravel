@@ -27,6 +27,7 @@ class CreateDocumentsTable extends Migration
             $table->foreign('past_question_id')->references('id')->on('past_questions');
 
             // status
+            $table->string('uploaded_by');
             $table->timestamps();
             $table->softDeletes();
         });

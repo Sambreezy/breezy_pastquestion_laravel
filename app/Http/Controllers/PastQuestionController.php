@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\User;
 use App\Models\PastQuestion;
 use App\Models\Image;
 use App\Models\Document;
@@ -37,6 +36,7 @@ class PastQuestionController extends Controller
      * @param  boolean  $status
      * @param  boolean  $properties
      * @param  boolean  $deleted
+     * @param  void
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -301,7 +301,7 @@ class PastQuestionController extends Controller
      * @param  string  $id
      * @return \Illuminate\Http\Response
      */
-    public function edit(Request $request)
+    public function edit()
     {
         //
     }
@@ -453,7 +453,7 @@ class PastQuestionController extends Controller
     }
 
     /**
-     * Retrun the specified resource from trash.
+     * Return the specified resource from trash.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
@@ -480,7 +480,7 @@ class PastQuestionController extends Controller
     }
 
     /**
-     * Retrun the specified resources from trash.
+     * Return the specified resources from trash.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response

@@ -21,6 +21,7 @@ class Document extends Model
         'doc_name', 
         'doc_url', 
         'past_question_id',
+        'uploaded_by',
     ];
 
     /**
