@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Models\PastQuestion;
 use App\Models\Image;
 use App\Helpers\Helper;
+use App\Http\Requests\ImageStoreRequest;
+use App\Http\Requests\ImageUpdateRequest;
+use App\Http\Requests\ImageSingleRequest;
+use App\Http\Requests\ImageMultipleRequest;
 
 class ImageController extends Controller
 {
