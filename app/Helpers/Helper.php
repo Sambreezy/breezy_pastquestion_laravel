@@ -6,29 +6,11 @@ use App\Helpers\MediaProcessors;
 use Ramsey\Uuid\Uuid;
 
 /**
- * Get page loading dependencies
+ * Get dependencies
  *
  */
 class Helper extends MediaProcessors
 {
-    /**
-     * Get general page options from options model
-     *
-     *  @return array
-     */
-    public static function optionsList()
-    {
-        // $options = Option::all();
-        // if ($options->isNotEmpty()) {
-            
-        //     foreach ($options as $option) {
-        //         $options_list[$option->option_value] = $option->option_name;
-        //     }
-        // }
-
-        // return $options_list;
-    }
-
     /**
      * Store multiple images
      * 
@@ -113,7 +95,7 @@ class Helper extends MediaProcessors
     /**
      * Unstore multiple images
      * 
-     * @param array $user_file
+     * @param object $user_file
      * @return array $unstored_images
      * @return boolean false
      */
@@ -123,19 +105,21 @@ class Helper extends MediaProcessors
             foreach ($user_file as $key) {
 
                 // Unsave image from storage
-                $processed_media = self::unstoreImage($key->image_url);
-                if ($processed_media) {
+                $unsaved_image = self::unstoreImage($key->image_url);
+                if ($unsaved_image) {
                     $unstored_images[] = $key->image_name;
                 }
             }
         } catch (\Throwable $th) {
 
-            if (empty($stored_images)) {
+            if (empty($unstored_images)) {
                 return false;
             }
 
             return $unstored_images;
         }
+
+        return $unstored_images;
     }
 
     /**
@@ -147,7 +131,7 @@ class Helper extends MediaProcessors
      * @param integer $number_to_store
      * @return array $stored_files
      */
-    public static function batchStoreFile($user_file, $doc_dir, $identification, $number_to_store = 8)
+    public static function batchStoreFiles($user_file, $doc_dir, $identification, $number_to_store = 8)
     {
         $number_to_store = is_integer($number_to_store) ? $number_to_store : 8 ;
 
@@ -192,29 +176,31 @@ class Helper extends MediaProcessors
     /**
      * Unstore multiple files
      * 
-     * @param array $user_file
+     * @param object $user_file
      * @return array $unstored_files
      * @return boolean false
      */
-    public static function batchUnstoreFile($user_file)
+    public static function batchUnstoreFiles($user_file)
     {
         try {
             foreach ($user_file as $key) {
 
-                // Unsave image from storage
-                $saved_file = self::unstoreFile($key->image_url);
-                if ($saved_file) {
-                    $unstored_files[] = $key->image_name;
+                // Unsave file from storage
+                $unsaved_file = self::unstoreFile($key->doc_url);
+                if ($unsaved_file) {
+                    $unstored_files[] = $key->doc_name;
                 }
             }
         } catch (\Throwable $th) {
 
-            if (empty($stored_files)) {
+            if (empty($unstored_files)) {
                 return false;
             }
 
             return $unstored_files;
         }
+
+        return $unstored_files;
     }
 
     /**

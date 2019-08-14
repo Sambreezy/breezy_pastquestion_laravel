@@ -24,8 +24,8 @@ class ImageMultipleRequest extends FormRequest
     public function rules()
     {
         return [
-            'photos' => 'required|array|max:25',
-            'photos.*' => 'required_unless:photos,'.null.'|image',
+            'images' => 'required|array|max:25',
+            'images.*' => 'required_unless:images,'.null.'|uuid|max:100',
         ];
     }
 
@@ -37,10 +37,10 @@ class ImageMultipleRequest extends FormRequest
     public function messages()
     {
         return [
-            'photos.required' => 'An image is required',
-            'photos.array' => 'Photos selection must be in the required type',
-            'photos.max' => 'Photos selection can not have more than 25 items',
-            'photos.*' => 'Only image files are allowed in photos field',
+            'images.required' => 'An image is required',
+            'images.array' => 'Images selection must be in the required type',
+            'images.max' => 'Images selection can not have more than 25 items',
+            'images.*' => 'One of the image selection item is either not valid or has more than 100 characters',
         ];
     }
 }

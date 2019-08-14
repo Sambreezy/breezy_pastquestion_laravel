@@ -36,7 +36,7 @@ class ImageController extends Controller
      * @param  void
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         if ($request->input('properties')){
 
@@ -128,10 +128,12 @@ class ImageController extends Controller
             } else {
                 return $this->actionFailure('Currently unable to process image past question records');
             }
+        } else {
+           return $this->failure('Current request can not be processed');
         }
 
         // return success
-        return $this->actionSuccess('Past question was saved');
+        return $this->actionSuccess('Image was saved');
     }
 
     /**
@@ -176,7 +178,7 @@ class ImageController extends Controller
         if ($image) {
 
             // Check if photo was submitted 
-            if (!is_null($request->file('photo'))) {
+            if (!is_null($request->file('photos'))) {
 
                 // Validate image owner
                 if ($image->uploaded_by !== auth()->user()->id) {
@@ -190,7 +192,7 @@ class ImageController extends Controller
                 }
 
                 // Remove previously stored image from server or cloud
-                // $removed_images = Helper::batchUnstoreImages([$image->image_url]);
+                // $removed_images = Helper::batchUnstoreImages($image);
                 // if (!$removed_images) {
                 //     return $this->actionFailure('Currently unable to update image');
                 // }
@@ -203,6 +205,8 @@ class ImageController extends Controller
                 if (!$image->save()) {
                     return $this->actionFailure('Currently unable to update image');
                 }
+            } else {
+                return $this->failure('Current request can not be processed');
             }
 
             // return success
@@ -249,7 +253,7 @@ class ImageController extends Controller
     public function batchDestroy(ImageMultipleRequest $request)
     {
         // Gets all the images in the array by id
-        $images = Image::whereIn('id', $request->input('photos'))->get();
+        $images = Image::whereIn('id', $request->input('images'))->get();
         if ($images) {
 
             // Deletes all found images
@@ -310,7 +314,7 @@ class ImageController extends Controller
     {
         // Gets all the images in the array by id
         $images = Image::onlyTrashed()
-        ->whereIn('id', $request->input('photos'))
+        ->whereIn('id', $request->input('images'))
         ->get();
 
         if ($images) {
@@ -353,6 +357,12 @@ class ImageController extends Controller
         $image = Image::find($request->input('id'));
         if ($image) {
 
+            // Remove previously stored image from server or cloud
+            // $removed_images = Helper::batchUnstoreImages($image);
+            // if (!$removed_images) {
+            //     return $this->actionFailure('Currently unable to delete image');
+            // }
+
             if ($image->forceDelete()) {
                 return $this->actionSuccess('Image was deleted');
             } else {
@@ -378,8 +388,14 @@ class ImageController extends Controller
         }
 
         // Gets all the image in the array by id
-        $image = Image::whereIn('id', $request->input('photos'))->get();
+        $image = Image::whereIn('id', $request->input('images'))->get();
         if ($image) {
+
+            // Remove previously stored images from server or cloud
+            // $removed_images = Helper::batchUnstoreImages($image);
+            // if (!$removed_images) {
+            //     return $this->actionFailure('Currently unable to delete some images');
+            // }
 
             // Deletes all found image
             $filtered = $image->filter(function ($value, $key) {
@@ -392,7 +408,7 @@ class ImageController extends Controller
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Image(s) deleted");
             } else {
-                return $this->actionFailure('Currently unable to delete Image(s)');
+                return $this->actionFailure('Currently unable to delete image(s)');
             }
 
         } else {
