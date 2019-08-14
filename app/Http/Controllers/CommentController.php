@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PastQuestion;
 use App\Models\Comment;
-use App\Helpers\Helper;
+// use App\Helpers\Helper;
 use App\Http\Requests\CommentStoreRequest;
 use App\Http\Requests\CommentUpdateRequest;
 use App\Http\Requests\CommentSingleRequest;
@@ -14,7 +14,7 @@ use App\Http\Requests\CommentMultipleRequest;
 class CommentController extends Controller
 {
     /**
-     * Create a new ImageController instance.
+     * Create a new CommentController instance.
      *
      * @return void
      */
