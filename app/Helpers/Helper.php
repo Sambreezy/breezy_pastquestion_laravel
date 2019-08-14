@@ -94,8 +94,9 @@ class Helper extends MediaProcessors
 
     /**
      * Unstore multiple images
+     * Expects collection's objects to contain keys named image_url and image_name
      * 
-     * @param object $user_file
+     * @param collection $user_file
      * @return array $unstored_images
      * @return boolean false
      */
@@ -175,8 +176,9 @@ class Helper extends MediaProcessors
 
     /**
      * Unstore multiple files
+     * Expects collection's objects to contain keys named doc_url and doc_name
      * 
-     * @param object $user_file
+     * @param collection $user_file
      * @return array $unstored_files
      * @return boolean false
      */
