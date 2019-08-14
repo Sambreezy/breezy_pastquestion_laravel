@@ -19,9 +19,9 @@ class CreateCommentsTable extends Migration
             $table->uuid('id')->primary();
 
             // comments
-            $table->string('statement');
-            $table->string('reply');
-            $table->uuid('parent_id');
+            $table->string('comment')->nullable();
+            $table->string('reply')->nullable();
+            $table->uuid('parent_comment_id')->nullable();
             $table->string('user_picture')->nullable();
 
             // relations
