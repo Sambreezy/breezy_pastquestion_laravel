@@ -20,11 +20,33 @@ Route::group([
 
 ], function ($router) {
 
+    // Auth Routes
     Route::post('register', 'AuthController@register');
     Route::post('login', 'AuthController@login');
     Route::post('logout', 'AuthController@logout');
     Route::post('refresh', 'AuthController@refresh');
     Route::post('me', 'AuthController@me');
+    Route::get('test', function(){
+        return response()->json('See https://github.com/bobbyaxe61',200);
+    });
+
+});
+
+Route::group([
+
+    'middleware' => ['AlwaysRespondWithJson','api','VerifyJwtToken'],
+    'prefix' => 'v1/user'
+
+], function ($router) {
+
+    // User Routes
+    Route::get('index', 'UserController@index');
+    Route::get('show', 'UserController@show');
+    Route::post('edit', 'UserController@update');
+    Route::delete('delete', 'UserController@destroy');
+    Route::delete('batchdelete', 'UserController@batchDestroy');
+    Route::post('restore', 'UserController@restore');
+    Route::post('batchrestore', 'UserController@batchRestore');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
@@ -65,7 +87,7 @@ Route::group([
 
 ], function ($router) {
 
-    // Past Question Routes
+    // Image Routes
     Route::get('index', 'ImageController@index');
     Route::get('personal', 'ImageController@personalIndex');
     Route::post('create', 'ImageController@store');
@@ -90,7 +112,7 @@ Route::group([
 
 ], function ($router) {
 
-    // Past Question Routes
+    // Document Routes
     Route::get('index', 'DocumentController@index');
     Route::get('personal', 'DocumentController@personalIndex');
     Route::post('create', 'DocumentController@store');
@@ -102,6 +124,46 @@ Route::group([
     Route::post('batchrestore', 'DocumentController@batchRestore');
     Route::delete('permanentdelete', 'DocumentController@permanentDestroy');
     Route::delete('batchpermanentdelete', 'DocumentController@batchpermanentDestroy');
+    Route::get('test', function(){
+        return response()->json('See https://github.com/bobbyaxe61',200);
+    });
+
+});
+
+Route::group([
+
+    'middleware' => ['AlwaysRespondWithJson','api','VerifyJwtToken'],
+    'prefix' => 'v1/comment'
+
+], function ($router) {
+
+    // Comment Routes
+    Route::get('index', 'CommentController@index');
+    Route::get('personal', 'CommentController@personalIndex');
+    Route::post('create', 'CommentController@store');
+    Route::get('show', 'CommentController@show');
+    Route::post('edit', 'CommentController@update');
+    Route::delete('delete', 'CommentController@destroy');
+    Route::delete('batchdelete', 'CommentController@batchDestroy');
+    Route::post('restore', 'CommentController@restore');
+    Route::post('batchrestore', 'CommentController@batchRestore');
+    Route::delete('permanentdelete', 'CommentController@permanentDestroy');
+    Route::delete('batchpermanentdelete', 'CommentController@batchpermanentDestroy');
+    Route::get('test', function(){
+        return response()->json('See https://github.com/bobbyaxe61',200);
+    });
+
+});
+
+Route::group([
+
+    'middleware' => ['AlwaysRespondWithJson','api'],
+    'prefix' => 'v1/comment'
+
+], function ($router) {
+
+    // General Routes
+    Route::get('index', 'GeneralController@index');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
