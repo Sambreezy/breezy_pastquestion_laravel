@@ -30,6 +30,9 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  boolean  $properties
+     * @param  boolean  $deleted
+     * @param  void 
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)

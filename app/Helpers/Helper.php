@@ -20,7 +20,7 @@ class Helper extends MediaProcessors
      * @param integer $number_to_store
      * @return array $stored_images
      */
-    public static function batchStoreImages($user_file, $image_dir, $identification, $number_to_store = 8)
+    public static function batchStoreImages($user_file, $image_dir, $identification, $user_id, $number_to_store = 8)
     {
         $number_to_store = is_integer($number_to_store) ? $number_to_store : 8 ;
 
@@ -35,6 +35,7 @@ class Helper extends MediaProcessors
                     'image_name' => 'no_image.jpg',
                     'image_url'  => $image_dir.'/no_image.jpg',
                     'past_question_id' => $identification,
+                    'uploaded_by' => $user_id,
                     'created_at' => $time->format('Y-m-d H:i:s'),
                     'updated_at' => $time->format('Y-m-d H:i:s'),
                 ];
@@ -132,7 +133,7 @@ class Helper extends MediaProcessors
      * @param integer $number_to_store
      * @return array $stored_files
      */
-    public static function batchStoreFiles($user_file, $doc_dir, $identification, $number_to_store = 8)
+    public static function batchStoreFiles($user_file, $doc_dir, $identification, $user_id, $number_to_store = 8)
     {
         $number_to_store = is_integer($number_to_store) ? $number_to_store : 8 ;
 
@@ -159,6 +160,7 @@ class Helper extends MediaProcessors
                         'doc_name' => $saved_file->file_name,
                         'doc_url'  => $saved_file->file_location,
                         'past_question_id' => $identification,
+                        'uploaded_by' => $user_id,
                         'created_at' => $time->format('Y-m-d H:i:s'),
                         'updated_at' => $time->format('Y-m-d H:i:s'),
                     ];

@@ -75,6 +75,55 @@ class ImageController extends Controller
     }
 
     /**
+     * Display a specific listing of the resource.
+     *
+     * @param  boolean  $properties
+     * @param  boolean  $deleted
+     * @return \Illuminate\Http\Response
+     */
+    public function personalIndex(Request $request)
+    {
+        /**
+         * Past questions images are being returned with both approved and unapproved past questions
+         * Unapproved past questions should be separated during render
+         */
+        if ($request->input('properties')){
+            
+            // Get all past questions images with all their relations
+            $past_questions_images = PastQuestion::where('uploaded_by', auth()->user()->id)
+            ->with(['image'])->take(500)
+            ->paginate(10);
+
+        } elseif ($request->input('deleted')){
+
+            // Get all deleted past questions images with all their relations
+            $past_questions_images = PastQuestion::where('uploaded_by', auth()->user()->id)
+            ->onlyTrashed()
+            ->with(['image'])->take(500)
+            ->paginate(10);
+
+        } else {
+
+            // Get all past questions images with out their relations
+            $past_questions_images = Image::where('uploaded_by', auth()->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        }
+
+        if ($past_questions_images) {
+            
+            if (count($past_questions_images) > 0) {
+                return $this->success($past_questions_images);
+            } else {
+               return $this->notFound('Images were not found');
+            }
+
+        } else {
+            return $this->actionFailure('Currently unable to search for images');
+        }
+    }
+
+    /**
      * Show the form for creating a new resource.
      *
      * @return \Illuminate\Http\Response
@@ -115,7 +164,7 @@ class ImageController extends Controller
                     $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_images;
 
                     // Store new images to server or cloud
-                    $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, $NEW_NO_ALLOWED_UPLOADS);
+                    $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, auth()->user()->id, $NEW_NO_ALLOWED_UPLOADS);
 
                     // Save past question images
                     if (!$processed_images || !Image::insert($processed_images)) {
@@ -186,7 +235,7 @@ class ImageController extends Controller
                 }
 
                 // Store new images to server or cloud
-                $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $image->past_question_id, $this->NO_ALLOWED_UPLOADS);
+                $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $image->past_question_id, auth()->user()->id, $this->NO_ALLOWED_UPLOADS);
                 if (!$processed_images) {
                     return $this->actionFailure('Currently unable to update image');
                 }

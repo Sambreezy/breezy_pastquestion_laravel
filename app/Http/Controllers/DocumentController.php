@@ -74,6 +74,54 @@ class DocumentController extends Controller
         }
     }
 
+    /** Display a specific listing of the resource.
+     *
+     * @param  boolean  $properties
+     * @param  boolean  $deleted
+     * @return \Illuminate\Http\Response
+     */
+    public function personalIndex(Request $request)
+    {
+        /**
+         * Past questions documents are being returned with both approved and unapproved past questions
+         * Unapproved past questions should be separated during render
+         */
+        if ($request->input('properties')){
+            
+            // Get all past questions documents with all their relations
+            $past_questions_documents = PastQuestion::where('uploaded_by', auth()->user()->id)
+            ->with(['document'])->take(500)
+            ->paginate(10);
+
+        } elseif ($request->input('deleted')){
+
+            // Get all deleted past questions documents with all their relations
+            $past_questions_documents = PastQuestion::where('uploaded_by', auth()->user()->id)
+            ->onlyTrashed()
+            ->with(['document'])->take(500)
+            ->paginate(10);
+
+        } else {
+
+            // Get all past questions documents with out their relations
+            $past_questions_documents = Document::where('uploaded_by', auth()->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        }
+
+        if ($past_questions_documents) {
+            
+            if (count($past_questions_documents) > 0) {
+                return $this->success($past_questions_documents);
+            } else {
+               return $this->notFound('Documents were not found');
+            }
+
+        } else {
+            return $this->actionFailure('Currently unable to search for documents');
+        }
+    }
+
     /**
      * Show the form for creating a new resource.
      *
@@ -115,7 +163,7 @@ class DocumentController extends Controller
                     $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_documents;
 
                     // Store new documents to server or cloud
-                    $processed_documents = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $past_question->id, $NEW_NO_ALLOWED_UPLOADS);
+                    $processed_documents = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $past_question->id, auth()->user()->id, $NEW_NO_ALLOWED_UPLOADS);
 
                     // Save past question documents
                     if (!$processed_documents || !Document::insert($processed_documents)) {
@@ -186,7 +234,7 @@ class DocumentController extends Controller
                 }
 
                 // Store new documents to server or cloud
-                $processed_documents = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $document->past_question_id, $this->NO_ALLOWED_UPLOADS);
+                $processed_documents = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $document->past_question_id, auth()->user()->id, $this->NO_ALLOWED_UPLOADS);
                 if (!$processed_documents) {
                     return $this->actionFailure('Currently unable to update document');
                 }

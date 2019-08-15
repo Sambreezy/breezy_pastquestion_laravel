@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Database\Eloquent\Builder;
 use App\Models\PastQuestion;
 use App\Models\Comment;
 // use App\Helpers\Helper;
@@ -29,6 +30,9 @@ class CommentController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param  boolean  $properties
+     * @param  boolean  $deleted
+     * @param  void
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request)
@@ -60,6 +64,57 @@ class CommentController extends Controller
 
             if (count($comments) > 0) {
                 return $this->success($comments);
+            } else {
+               return $this->notFound('Comments were not found');
+            }
+
+        } else {
+            return $this->actionFailure('Currently unable to search for comments');
+        }
+    }
+
+    /**
+     * Display a specific listing of the resource.
+     *
+     * @param  boolean  $properties
+     * @param  boolean  $deleted
+     * @return \Illuminate\Http\Response
+     */
+    public function personalIndex(Request $request)
+    {
+        /**
+         * Past questions comments are being returned with both approved and unapproved past questions
+         * Unapproved past questions should be separated during render
+         */
+        if ($request->input('properties')){
+            
+            // Get all past questions comments with all their relations
+            $past_questions_comments = PastQuestion::whereHas('comment', function(Builder $query){
+                $query->where('user_id', '=', auth()->user()->id);
+            })->take(500)
+            ->paginate(10);
+
+        } elseif ($request->input('deleted')){
+
+            // Get all deleted past questions comments with all their relations
+            $past_questions_comments = PastQuestion::onlyTrashed()
+            ->whereHas('comment', function(Builder $query){
+                $query->where('user_id', '=', auth()->user()->id);
+            })->take(500)
+            ->paginate(10);
+
+        } else {
+
+            // Get all past questions comments with out their relations
+            $past_questions_comments = Comment::where('user_id', auth()->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->get();
+        }
+
+        if ($past_questions_comments) {
+            
+            if (count($past_questions_comments) > 0) {
+                return $this->success($past_questions_comments);
             } else {
                return $this->notFound('Comments were not found');
             }

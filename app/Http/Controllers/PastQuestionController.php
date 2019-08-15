@@ -253,7 +253,7 @@ class PastQuestionController extends Controller
 
         // Check if photos were submitted 
         if (!is_null($request->file('photos')) && is_array($request->file('photos'))) {
-            $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, $this->NO_ALLOWED_UPLOADS);
+            $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, auth()->user()->id, $this->NO_ALLOWED_UPLOADS);
 
             // Save past question images
             if (!$processed_images || !Image::insert($processed_images)) {
@@ -263,7 +263,7 @@ class PastQuestionController extends Controller
 
         // Check if documents were submitted 
         if (!is_null($request->file('docs')) && is_array($request->file('docs'))) {
-            $processed_docs = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $past_question->id, $this->NO_ALLOWED_UPLOADS);
+            $processed_docs = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $past_question->id, auth()->user()->id, $this->NO_ALLOWED_UPLOADS);
 
             // Save past question documents
             if (!$processed_docs || !Document::insert($processed_docs)) {
@@ -343,7 +343,7 @@ class PastQuestionController extends Controller
                         $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_images;
 
                         // Store new images to server or cloud
-                        $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, $NEW_NO_ALLOWED_UPLOADS);
+                        $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, auth()->user()->id, $NEW_NO_ALLOWED_UPLOADS);
 
                         // Save past question images
                         if (!$processed_images || !Image::insert($processed_images)) {
@@ -370,7 +370,7 @@ class PastQuestionController extends Controller
                         $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_docs;
 
                         // Store new documents to server or cloud
-                        $processed_docs = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $past_question->id, $NEW_NO_ALLOWED_UPLOADS);
+                        $processed_docs = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $past_question->id, auth()->user()->id, $NEW_NO_ALLOWED_UPLOADS);
 
                         // Save past question documents
                         if (!$processed_docs || !Document::insert($processed_docs)) {
