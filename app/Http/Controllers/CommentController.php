@@ -14,6 +14,8 @@ use App\Http\Requests\CommentMultipleRequest;
 
 class CommentController extends Controller
 {
+    protected $NO_ALLOWED_UPLOADS = 0;
+
     /**
      * Create a new CommentController instance.
      *
@@ -311,7 +313,7 @@ class CommentController extends Controller
 
         if ($comment) {  
 
-            if ($comment->user_id !== auth()->user()->id) {
+            if ($comment->user_id !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
                 return $this->unauthorized('This comment was not uploaded by you');
             }
 
@@ -340,7 +342,7 @@ class CommentController extends Controller
 
             // Deletes all found comments
             $filtered = $comments->filter(function ($value, $key) {
-                if ($value->user_id === auth()->user()->id) {
+                if ($value->user_id === auth()->user()->id || $this->USER_LEVEL_3 === auth()->user()->rank) {
                     if ($value->delete()) {
                         return $value;
                     }
@@ -371,7 +373,7 @@ class CommentController extends Controller
         
         if ($comment) {  
             
-            if ($comment->user_id !== auth()->user()->id) {
+            if ($comment->user_id !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
                 return $this->unauthorized('This comment was not uploaded by you');
             }
 
@@ -403,7 +405,7 @@ class CommentController extends Controller
 
             // Restores all found deleted comments
             $filtered = $comments->filter(function ($value, $key) {
-                if ($value->user_id === auth()->user()->id) {
+                if ($value->user_id === auth()->user()->id || $this->USER_LEVEL_3 === auth()->user()->rank) {
                     if ($value->restore()) {
                         return $value;
                     }

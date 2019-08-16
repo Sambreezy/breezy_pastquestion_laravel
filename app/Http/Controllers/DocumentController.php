@@ -277,7 +277,7 @@ class DocumentController extends Controller
 
         if ($document) {  
 
-            if ($document->uploaded_by !== auth()->user()->id) {
+            if ($document->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
                 return $this->unauthorized('This document was not uploaded by you');
             }
 
@@ -306,7 +306,7 @@ class DocumentController extends Controller
 
             // Deletes all found documents
             $filtered = $documents->filter(function ($value, $key) {
-                if ($value->uploaded_by === auth()->user()->id) {
+                if ($value->uploaded_by === auth()->user()->id || $this->USER_LEVEL_3 === auth()->user()->rank) {
                     if ($value->delete()) {
                         return $value;
                     }
@@ -337,7 +337,7 @@ class DocumentController extends Controller
         
         if ($document) {  
             
-            if ($document->uploaded_by !== auth()->user()->id) {
+            if ($document->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
                 return $this->unauthorized('This document was not uploaded by you');
             }
 
@@ -369,7 +369,7 @@ class DocumentController extends Controller
 
             // Restores all found deleted documents
             $filtered = $documents->filter(function ($value, $key) {
-                if ($value->uploaded_by === auth()->user()->id) {
+                if ($value->uploaded_by === auth()->user()->id || $this->USER_LEVEL_3 === auth()->user()->rank) {
                     if ($value->restore()) {
                         return $value;
                     }

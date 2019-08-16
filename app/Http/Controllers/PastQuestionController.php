@@ -404,7 +404,7 @@ class PastQuestionController extends Controller
 
         if ($past_question) {  
 
-            if ($past_question->uploaded_by !== auth()->user()->id) {
+            if ($past_question->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
                 return $this->unauthorized('This past question was not uploaded by you');
             }
 
@@ -433,7 +433,7 @@ class PastQuestionController extends Controller
 
             // Deletes all found past questions
             $filtered = $past_questions->filter(function ($value, $key) {
-                if ($value->uploaded_by === auth()->user()->id) {
+                if ($value->uploaded_by === auth()->user()->id || $this->USER_LEVEL_3 === auth()->user()->rank) {
                     if ($value->delete()) {
                         return $value;
                     }
@@ -464,7 +464,7 @@ class PastQuestionController extends Controller
         
         if ($past_question) {  
             
-            if ($past_question->uploaded_by !== auth()->user()->id) {
+            if ($past_question->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
                 return $this->unauthorized('This past question was not uploaded by you');
             }
 
@@ -496,7 +496,7 @@ class PastQuestionController extends Controller
 
             // Restores all found deleted past questions
             $filtered = $past_questions->filter(function ($value, $key) {
-                if ($value->uploaded_by === auth()->user()->id) {
+                if ($value->uploaded_by === auth()->user()->id || $this->USER_LEVEL_3 === auth()->user()->rank) {
                     if ($value->restore()) {
                         return $value;
                     }

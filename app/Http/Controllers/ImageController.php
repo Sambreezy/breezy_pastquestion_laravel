@@ -278,7 +278,7 @@ class ImageController extends Controller
 
         if ($image) {  
 
-            if ($image->uploaded_by !== auth()->user()->id) {
+            if ($image->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
                 return $this->unauthorized('This image was not uploaded by you');
             }
 
@@ -307,7 +307,7 @@ class ImageController extends Controller
 
             // Deletes all found images
             $filtered = $images->filter(function ($value, $key) {
-                if ($value->uploaded_by === auth()->user()->id) {
+                if ($value->uploaded_by === auth()->user()->id || $this->USER_LEVEL_3 === auth()->user()->rank) {
                     if ($value->delete()) {
                         return $value;
                     }
@@ -338,7 +338,7 @@ class ImageController extends Controller
         
         if ($image) {  
             
-            if ($image->uploaded_by !== auth()->user()->id) {
+            if ($image->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
                 return $this->unauthorized('This image was not uploaded by you');
             }
 
@@ -370,7 +370,7 @@ class ImageController extends Controller
 
             // Restores all found deleted images
             $filtered = $images->filter(function ($value, $key) {
-                if ($value->uploaded_by === auth()->user()->id) {
+                if ($value->uploaded_by === auth()->user()->id || $this->USER_LEVEL_3 === auth()->user()->rank) {
                     if ($value->restore()) {
                         return $value;
                     }
