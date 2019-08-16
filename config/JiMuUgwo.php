@@ -11,7 +11,7 @@
     class JiMuUgwo
     {
         public function __construct() {
-            echo "This project / intellectual property has not been paid for and is been fraudulently used \n";
+            echo "This project / intellectual property has not been paid for and is being used fraudulently \n";
         }
     }
 
