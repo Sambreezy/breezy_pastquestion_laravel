@@ -79,7 +79,7 @@ class Comment extends Model
      */
     public function pastQuestion()
     {
-        return $this->belongs(PastQuestion::class);
+        return $this->belongsTo(PastQuestion::class);
     }
 
     /**
@@ -87,6 +87,6 @@ class Comment extends Model
      */
     public function user()
     {
-        return $this->belongs(User::class);
+        return $this->belongsTo(User::class);
     }
 }

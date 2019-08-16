@@ -64,6 +64,7 @@ class Helper extends MediaProcessors
                         'id' => Uuid::uuid4()->toString(),
                         'image_name' => $processed_media->file_name,
                         'image_url'  => $processed_media->file_location,
+                        'uploaded_by' => $user_id,
                         'past_question_id' => $identification,
                         'created_at' => $time->format('Y-m-d H:i:s'),
                         'updated_at' => $time->format('Y-m-d H:i:s'),
@@ -79,8 +80,9 @@ class Helper extends MediaProcessors
                     $stored_images[] = [
                         'id' => Uuid::uuid4()->toString(),
                         'image_name' => 'no_image.jpg',
-                        'image_url'  => $image_dir.'/no_image-1.jpg',
+                        'image_url'  => $image_dir.'/no_image.jpg',
                         'past_question_id' => $identification,
+                        'uploaded_by' => $user_id,
                         'created_at' => $time->format('Y-m-d H:i:s'),
                         'updated_at' => $time->format('Y-m-d H:i:s'),
                     ];

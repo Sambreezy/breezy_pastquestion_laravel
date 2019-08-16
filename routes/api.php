@@ -158,7 +158,7 @@ Route::group([
 Route::group([
 
     'middleware' => ['AlwaysRespondWithJson','api'],
-    'prefix' => 'v1/comment'
+    'prefix' => 'v1/general'
 
 ], function ($router) {
 

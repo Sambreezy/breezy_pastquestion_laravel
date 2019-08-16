@@ -40,9 +40,8 @@ class CommentController extends Controller
         if ($request->input('properties')){
 
             // Get all comments with all their past questions
-            $comments = Comment::with([
-                'pastQuestion',
-            ])->take(500)
+            $comments = Comment::with(['pastQuestion'])
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('deleted')){
@@ -142,6 +141,15 @@ class CommentController extends Controller
      */
     public function store(CommentStoreRequest $request)
     {
+        // check if requirements are met
+        if (empty($request->input('comment')) && empty($request->input('reply'))) {
+            return $this->failure('A comment or reply is required');
+        }
+
+        if (!empty($request->input('comment')) && !empty($request->input('reply'))) {
+            return $this->failure('Can not process both comment and reply');
+        }
+
         // Validate past question id
         $past_question = PastQuestion::find($request->past_question_id);
         if (!$past_question) {
@@ -176,11 +184,6 @@ class CommentController extends Controller
             ]);
         }
 
-        // check if requirements are met
-        if (empty($request->input('commet')) && empty($request->input('reply'))) {
-            return $this->failure('A comment or reply is required');
-        }
-
         // Create new comment
         $comment = new Comment;
         $comment->fill($request->toArray());
@@ -201,13 +204,13 @@ class CommentController extends Controller
      */
     public function show(CommentSingleRequest $request)
     {
-        $comment = Commet::with(['pastQuestion'])
+        $comment = Comment::with(['pastQuestion'])
         ->find($request->input('id'));
 
         if ($comment) {
             return $this->success($comment);
         } else {
-            return $this->notFound('Commet was not found');
+            return $this->notFound('Comment was not found');
         }
     }
 
@@ -231,8 +234,29 @@ class CommentController extends Controller
      */
     public function update(CommentUpdateRequest $request)
     {
-        $comment = Commet::find($request->input('id'));
+        // check if requirements are met
+        if (empty($request->input('comment')) && empty($request->input('reply'))) {
+            return $this->failure('A comment or reply is required');
+        }
+
+        if (!empty($request->input('comment')) && !empty($request->input('reply'))) {
+            return $this->failure('Can not process both comment and reply');
+        }
+
+        $comment = Comment::find($request->input('id'));
         if ($comment) {
+
+            // Check if original comment was a comment 
+            // If so then it can only be edited by a comment
+            if ($comment->comment && empty($request->input('comment'))) {
+               return $this->failure('Only a comment input can be accepted for this id');
+            }
+
+            // Check if original comment was a reply
+            // If so then it can only be edited by a reply
+            if ($comment->reply && empty($request->input('reply'))) {
+               return $this->failure('Only a reply input can be accepted for this id');
+            }
 
             // Validate comment owner
             if ($comment->user_id !== auth()->user()->id) {
@@ -287,7 +311,7 @@ class CommentController extends Controller
 
         if ($comment) {  
 
-            if ($comment->uploaded_by !== auth()->user()->id) {
+            if ($comment->user_id !== auth()->user()->id) {
                 return $this->unauthorized('This comment was not uploaded by you');
             }
 

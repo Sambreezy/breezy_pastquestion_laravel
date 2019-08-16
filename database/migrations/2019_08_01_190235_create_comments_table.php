@@ -32,7 +32,7 @@ class CreateCommentsTable extends Migration
             $table->foreign('user_id')->references('id')->on('users');
 
             // status
-            $table->integer('flags');
+            $table->smallInteger('flags')->default(0);
             $table->timestamps();
             $table->softDeletes();
         });
