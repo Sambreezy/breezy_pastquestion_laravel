@@ -42,11 +42,11 @@ class CommentUpdateRequest extends FormRequest
             'id.uuid' => 'ID characters are not valid',
             'id.max' => 'ID can not have more than 100 characters',
 
-            'comment.required' => 'A comment is required',
+            'comment.required_if' => 'A comment is required',
             'comment.string' => 'The comment field is not valid',
             'comment.max' => 'Can not have more than 250 characters',
 
-            'reply.required' => 'A reply is required',
+            'reply.required_if' => 'A reply is required',
             'reply.string' => 'The reply field is not valid',
             'reply.max' => 'Can not have more than 250 characters',
         ];

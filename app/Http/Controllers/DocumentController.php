@@ -226,7 +226,7 @@ class DocumentController extends Controller
         if ($document) {
 
             // Check if photo was submitted 
-            if (!is_null($request->file('docs'))) {
+            if (!is_null($request->file('docs')) && is_array($request->file('docs'))) {
 
                 // Validate document owner
                 if ($document->uploaded_by !== auth()->user()->id) {
@@ -246,8 +246,8 @@ class DocumentController extends Controller
                 // }
 
                 // Fill in replacement document details
-                $document->doc_name = $processed_documents[0]->doc_name;
-                $document->doc_url = $processed_documents[0]->doc_url;
+                $document->doc_name = $processed_documents[0]['doc_name'];
+                $document->doc_url = $processed_documents[0]['doc_url'];
 
                 // Save document
                 if (!$document->save()) {

@@ -227,7 +227,7 @@ class ImageController extends Controller
         if ($image) {
 
             // Check if photo was submitted 
-            if (!is_null($request->file('photos'))) {
+            if (!is_null($request->file('photos')) && is_array($request->file('photos'))) {
 
                 // Validate image owner
                 if ($image->uploaded_by !== auth()->user()->id) {
@@ -247,8 +247,8 @@ class ImageController extends Controller
                 // }
 
                 // Fill in replacement image details
-                $image->image_name = $processed_images[0]->image_name;
-                $image->image_url = $processed_images[0]->image_url;
+                $image->image_name = $processed_images[0]['image_name'];
+                $image->image_url = $processed_images[0]['image_url'];
 
                 // Save image
                 if (!$image->save()) {
