@@ -47,6 +47,8 @@ Route::group([
     Route::delete('batchdelete', 'UserController@batchDestroy');
     Route::post('restore', 'UserController@restore');
     Route::post('batchrestore', 'UserController@batchRestore');
+    Route::delete('permanentdelete', 'UserController@permanentDestroy');
+    Route::delete('batchpermanentdelete', 'UserController@batchpermanentDestroy');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
@@ -140,6 +142,7 @@ Route::group([
     // Comment Routes
     Route::get('index', 'CommentController@index');
     Route::get('personal', 'CommentController@personalIndex');
+    Route::get('flagged', 'CommentController@flaggedCommentIndex');
     Route::post('create', 'CommentController@store');
     Route::get('show', 'CommentController@show');
     Route::post('edit', 'CommentController@update');
@@ -164,6 +167,23 @@ Route::group([
 
     // General Routes
     Route::get('index', 'GeneralController@index');
+    Route::get('test', function(){
+        return response()->json('See https://github.com/bobbyaxe61',200);
+    });
+
+});
+
+Route::group([
+
+    'middleware' => ['AlwaysRespondWithJson','api','VerifyJwtToken'],
+    'prefix' => 'v1/social'
+
+], function ($router) {
+
+    // Social Routes
+    Route::post('upvote', 'SocialController@upVote');
+    Route::post('downvote', 'SocialController@downVote');
+    Route::post('flagcomment', 'SocialController@flagComment');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });

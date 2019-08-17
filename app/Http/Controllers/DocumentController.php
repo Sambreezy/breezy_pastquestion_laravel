@@ -43,13 +43,15 @@ class DocumentController extends Controller
             // Get all documents with all their past questions
             $documents = Document::with([
                 'pastQuestion',
-            ])->take(500)
+            ])->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('deleted')){
 
             // Get all deleted documents
             $documents = Document::onlyTrashed()
+            ->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
 
@@ -90,7 +92,9 @@ class DocumentController extends Controller
             
             // Get all past questions documents with all their relations
             $past_questions_documents = PastQuestion::where('uploaded_by', auth()->user()->id)
-            ->with(['document'])->take(500)
+            ->with(['document'])
+            ->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('deleted')){
@@ -98,7 +102,9 @@ class DocumentController extends Controller
             // Get all deleted past questions documents with all their relations
             $past_questions_documents = PastQuestion::where('uploaded_by', auth()->user()->id)
             ->onlyTrashed()
-            ->with(['document'])->take(500)
+            ->with(['document'])
+            ->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } else {
@@ -106,7 +112,8 @@ class DocumentController extends Controller
             // Get all past questions documents with out their relations
             $past_questions_documents = Document::where('uploaded_by', auth()->user()->id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->take(500)
+            ->paginate(10);
         }
 
         if ($past_questions_documents) {

@@ -52,7 +52,8 @@ class PastQuestionController extends Controller
             ->with([
                 'image',
                 'document',
-            ])->take(500)
+            ])->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('properties')){
@@ -61,7 +62,8 @@ class PastQuestionController extends Controller
             $past_questions = PastQuestion::with([
                 'image',
                 'document',
-            ])->take(500)
+            ])->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('deleted')){
@@ -70,7 +72,8 @@ class PastQuestionController extends Controller
             $past_questions = PastQuestion::onlyTrashed()->with([
                 'image',
                 'document',
-            ])->take(500)
+            ])->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } else {
@@ -113,14 +116,18 @@ class PastQuestionController extends Controller
             // Get all past questions that are active/approved or inactive/unapproved
             $past_questions = PastQuestion::where('approved', (boolean)$request->input('status'))
             ->where('uploaded_by', auth()->user()->id)
-            ->with(['image','document',])->take(500)
+            ->with(['image','document',])
+            ->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('properties')){
             
             // Get all past questions with all their relations
             $past_questions = PastQuestion::where('uploaded_by', auth()->user()->id)
-            ->with(['image','document',])->take(500)
+            ->with(['image','document',])
+            ->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('deleted')){
@@ -128,7 +135,9 @@ class PastQuestionController extends Controller
             // Get all deleted past questions with all their relations
             $past_questions = PastQuestion::where('uploaded_by', auth()->user()->id)
             ->onlyTrashed()
-            ->with(['image','document',])->take(500)
+            ->with(['image','document',])
+            ->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } else {

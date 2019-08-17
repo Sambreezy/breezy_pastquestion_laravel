@@ -23,7 +23,7 @@ class UserController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware("VerifyRankToken:$this->USER_LEVEL_3", [
-            'only' => ['destroy','batchDestroy','restore','batchRestore',]
+            'only' => ['index','destroy','batchDestroy','restore','batchRestore',]
         ]);
     }
 
@@ -302,6 +302,70 @@ class UserController extends Controller
                 return $this->actionSuccess("$restored User(s) restored");
             } else {
                 return $this->actionFailure('Currently unable to restore User(s)');
+            }
+
+        } else {
+            return $this->notfound('User(s) not found');
+        }
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function permanentDestroy(UserSingleRequest $request)
+    {
+        // Check access level
+        if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
+            return $this->unauthorized('Please contact management');
+        }
+
+        // Find the user
+        $user = User::find($request->input('id'));
+        if ($user) {
+
+            if ($user->forceDelete()) {
+                return $this->actionSuccess('User was deleted');
+            } else {
+                return $this->actionFailure('Currently unable to delete user');
+            }
+
+        } else {
+            return $this->notFound('User was not found');
+        }
+    }
+
+    /**
+     * Remove the specified resources from storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function batchpermanentDestroy(UserMultipleRequest $request)
+    {
+        // Check access level
+        if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
+            return $this->unauthorized('Please contact management');
+        }
+
+        // Gets all the users in the array by id
+        $users = User::whereIn('id', $request->input('users'))->get();
+        if ($users) {
+
+            // Deletes all found users
+            $filtered = $users->filter(function ($value, $key) {
+                if ($value->forceDelete()) {
+                    return $value;
+                }
+            });
+
+            // Checkes if any users were deleted
+            if (($deleted = count($filtered)) > 0) {
+                return $this->actionSuccess("$deleted User(s) deleted");
+            } else {
+                return $this->actionFailure('Currently unable to delete user(s)');
             }
 
         } else {

@@ -43,13 +43,15 @@ class ImageController extends Controller
             // Get all images with all their past questions
             $images = Image::with([
                 'pastQuestion',
-            ])->take(500)
+            ])->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('deleted')){
 
             // Get all deleted images
             $images = Image::onlyTrashed()
+            ->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
 
@@ -91,7 +93,9 @@ class ImageController extends Controller
             
             // Get all past questions images with all their relations
             $past_questions_images = PastQuestion::where('uploaded_by', auth()->user()->id)
-            ->with(['image'])->take(500)
+            ->with(['image'])
+            ->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('deleted')){
@@ -99,7 +103,9 @@ class ImageController extends Controller
             // Get all deleted past questions images with all their relations
             $past_questions_images = PastQuestion::where('uploaded_by', auth()->user()->id)
             ->onlyTrashed()
-            ->with(['image'])->take(500)
+            ->with(['image'])
+            ->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } else {
@@ -107,7 +113,8 @@ class ImageController extends Controller
             // Get all past questions images with out their relations
             $past_questions_images = Image::where('uploaded_by', auth()->user()->id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->take(500)
+            ->paginate(10);
         }
 
         if ($past_questions_images) {

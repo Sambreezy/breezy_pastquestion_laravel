@@ -94,7 +94,7 @@ class User extends Authenticatable implements JWTSubject
     /**
      * Establishes a one to many relationship with past questions table
      */
-    public function pastQuestions()
+    public function pastQuestion()
     {
         return $this->hasMany(PastQuestion::class);
     }

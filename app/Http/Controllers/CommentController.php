@@ -25,7 +25,7 @@ class CommentController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware("VerifyRankToken:$this->USER_LEVEL_3", [
-            'only' => ['permanentDestroy','batchpermanentDestroy']
+            'only' => ['flaggedCommentIndex','permanentDestroy','batchpermanentDestroy']
         ]);
     }
 
@@ -43,6 +43,7 @@ class CommentController extends Controller
 
             // Get all comments with all their past questions
             $comments = Comment::with(['pastQuestion'])
+            ->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
 
@@ -50,6 +51,7 @@ class CommentController extends Controller
 
             // Get all deleted comments
             $comments = Comment::onlyTrashed()
+            ->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
 
@@ -91,8 +93,10 @@ class CommentController extends Controller
             
             // Get all past questions comments with all their relations
             $past_questions_comments = PastQuestion::whereHas('comment', function(Builder $query){
-                $query->where('user_id', '=', auth()->user()->id);
-            })->take(500)
+                $query->where('user_id', '=', auth()->user()->id)
+                ->orderBy('created_at', 'desc');
+            })->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } elseif ($request->input('deleted')){
@@ -100,8 +104,10 @@ class CommentController extends Controller
             // Get all deleted past questions comments with all their relations
             $past_questions_comments = PastQuestion::onlyTrashed()
             ->whereHas('comment', function(Builder $query){
-                $query->where('user_id', '=', auth()->user()->id);
-            })->take(500)
+                $query->where('user_id', '=', auth()->user()->id)
+                ->orderBy('created_at', 'desc');
+            })->orderBy('created_at', 'desc')
+            ->take(500)
             ->paginate(10);
 
         } else {
@@ -109,13 +115,63 @@ class CommentController extends Controller
             // Get all past questions comments with out their relations
             $past_questions_comments = Comment::where('user_id', auth()->user()->id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->take(500)
+            ->paginate(10);
         }
 
         if ($past_questions_comments) {
             
             if (count($past_questions_comments) > 0) {
                 return $this->success($past_questions_comments);
+            } else {
+               return $this->notFound('Comments were not found');
+            }
+
+        } else {
+            return $this->actionFailure('Currently unable to search for comments');
+        }
+    }
+
+    /**
+     * Display a listing of the resource.
+     *
+     * @param  boolean  $properties
+     * @param  boolean  $deleted
+     * @param  void
+     * @return \Illuminate\Http\Response
+     */
+    public function flaggedCommentIndex(Request $request)
+    {
+        if ($request->input('properties')){
+
+            // Get all flagged comments with relationship
+            $comments = PastQuestion::whereHas('comment', function(Builder $query){
+                $query->where('flags', '>', 0)->orderBy('flags', 'desc');
+            })->take(500)
+            ->paginate(10);
+
+        } elseif ($request->input('deleted')){
+
+            // Get all deleted flagged comments
+            $comments = Comment::onlyTrashed()
+            ->where('flags','>', 0)
+            ->orderBy('flags', 'desc')
+            ->take(500)
+            ->paginate(10);
+
+        } else {
+
+            // Get all flagged comments
+            $comments = Comment::where('flags','>', 0)
+            ->orderBy('flags', 'desc')
+            ->take(500)
+            ->paginate(10);
+        }
+
+        if ($comments) {
+
+            if (count($comments) > 0) {
+                return $this->success($comments);
             } else {
                return $this->notFound('Comments were not found');
             }
@@ -168,6 +224,7 @@ class CommentController extends Controller
             
             $request->merge([
                 'user_id' => auth()->user()->id,
+                'user_name' => auth()->user()->name,
                 'user_picture' => auth()->user()->picture
             ]);
         }
@@ -182,6 +239,7 @@ class CommentController extends Controller
 
             $request->merge([
                 'user_id' => auth()->user()->id,
+                'user_name' => auth()->user()->name,
                 'user_picture' => auth()->user()->picture
             ]);
         }
@@ -273,7 +331,8 @@ class CommentController extends Controller
                 ]);
                 
                 $request->merge([
-                    'user_picture' => auth()->user()->picture
+                    'user_picture' => auth()->user()->picture,
+                    'user_name' => auth()->user()->name,
                 ]);
             }
 
@@ -284,7 +343,8 @@ class CommentController extends Controller
                 ]);
                 
                 $request->merge([
-                    'user_picture' => auth()->user()->picture
+                    'user_picture' => auth()->user()->picture,
+                    'user_name' => auth()->user()->name,
                 ]);
             }
 

@@ -23,6 +23,7 @@ class Comment extends Model
         'parent_comment_id', 
         'past_question_id', 
         'user_picture',
+        'user_name',
         'user_id',
     ];
 
