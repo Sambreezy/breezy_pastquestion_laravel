@@ -23,6 +23,7 @@ class CreatePastQuestionsTable extends Migration
             $table->string('course_name');
             $table->string('course_code')->nullable();
             $table->string('semester')->nullable();
+            $table->string('school')->nullable();
             $table->year('year');
             $table->json('tags')->nullable();
 
@@ -34,7 +35,7 @@ class CreatePastQuestionsTable extends Migration
             $table->string('uploaded_by');
             $table->bigInteger('vote_up')->default(0);
             $table->bigInteger('vote_down')->default(0);
-            $table->boolean('approved')->default(false);
+            $table->boolean('approved')->default(true);
             $table->timestamps();
             $table->softDeletes();
         });

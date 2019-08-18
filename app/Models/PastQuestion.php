@@ -22,6 +22,7 @@ class PastQuestion extends Model
         'course_name', 
         'course_code', 
         'semester', 
+        'school',
         'year', 
         'tags', 
         'uploaded_by',

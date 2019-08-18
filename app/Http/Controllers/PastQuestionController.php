@@ -173,12 +173,14 @@ class PastQuestionController extends Controller
         $course_name = is_null($request->input('course_name'))?$request->input('course_name'):Helper::escapeLikeForQuery($request->input('course_name'));
         $course_code = is_null($request->input('course_code'))?$request->input('course_code'):Helper::escapeLikeForQuery($request->input('course_code'));
         $semester = is_null($request->input('semester'))?$request->input('semester'):Helper::escapeLikeForQuery($request->input('semester'));
+        $school = is_null($request->input('school'))?$request->input('school'):Helper::escapeLikeForQuery($request->input('school'));
         $year = is_null($request->input('year'))?$request->input('year'):Helper::escapeLikeForQuery($request->input('year'));
 
         $past_questions = PastQuestion::where('department', 'like', '%'.$department.'%')
         ->where('course_name', 'like', '%'.$course_name.'%')
         ->where('course_code', 'like', '%'.$course_code.'%')
         ->where('semester', 'like', '%'.$semester.'%')
+        ->where('school', 'like', '%'.$school.'%')
         ->where('year', 'like', '%'.$year.'%')
         ->orderBy('created_at', 'desc')
         ->take(500)
@@ -211,6 +213,7 @@ class PastQuestionController extends Controller
         ->orWhere('course_name', 'like', '%'.$search.'%')
         ->orWhere('course_code', 'like', '%'.$search.'%')
         ->orWhere('semester', 'like', '%'.$search.'%')
+        ->orWhere('school', 'like', '%'.$search.'%')
         ->orWhere('year', 'like', '%'.$search.'%')
         ->orderBy('created_at', 'desc')
         ->take(500)
