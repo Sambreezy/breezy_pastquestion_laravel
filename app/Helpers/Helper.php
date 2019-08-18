@@ -247,4 +247,16 @@ class Helper extends MediaProcessors
             $value
         );
     }
+
+    /**
+     * Send an email to a specified address
+     * 
+     * @param string $key
+     * @param array $info
+     * @return boolean
+     */
+    public static function sendSimpleMail($key, $info)
+    {
+        return true;
+    }
 }

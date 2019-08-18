@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AuthLoginRequest extends FormRequest
+class AuthResetPasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,7 +25,6 @@ class AuthLoginRequest extends FormRequest
     {
         return [
             'email' => 'required|email|max:100',
-            'password' => 'required',
         ];
     }
 
@@ -40,7 +39,6 @@ class AuthLoginRequest extends FormRequest
             'email.required' => 'An email is required',
             'email.max' => 'An email can not have more than 100 characters',
             'email.email'  => 'Email is not valid',
-            'password.required'  => 'A password is required',
         ];
     }
 }

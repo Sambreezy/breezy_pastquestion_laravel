@@ -8,7 +8,10 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegisterRequest;
+use App\Http\Requests\AuthResetPasswordRequest;
+use App\Http\Requests\AuthChangePasswordRequest;
 use App\Models\User;
+use App\Helpers\Helper;
 
 class AuthController extends Controller
 {
@@ -19,7 +22,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register']]);
+        $this->middleware('auth:api', ['except' => ['login','register','reset']]);
     }
 
     /**
@@ -80,6 +83,63 @@ class AuthController extends Controller
         }
 
         return $this->actionSuccess('Registration Successfull');
+    }
+
+    /**
+     * Reset a user password.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resetPassword(AuthResetPasswordRequest $request)
+    {
+        // Check if email exsits
+        $user = User::where('email', $request->input('email'))->first();
+        if (!$user) {
+            return $this->notFound('Ensure that the email belongs to you');
+        }
+
+        // Make new password
+        $new_password = uniqid();
+        $user->password = Hash::make($new_password);
+
+        // Save new password
+        if (!$user->save()){
+            return $this->actionFailure('Failed to reset password');
+        }
+
+        // send an email to user
+        Helper::sendSimpleMail('key',['email'=>$user->email,'message'=>"Your new password is $new_password", 'html_location'=>'']);
+
+        return $this->actionSuccess('Reset successfull, please check email for new password');
+    }
+
+    /**
+     * Change a user password.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function changePassword(AuthChangePasswordRequest $request)
+    {
+        // Check if user exsits
+        $user = User::find($request->input('id'));
+
+        if (!$user) {
+            return $this->notFound('Unable to identify account');
+        }
+
+        if (!Hash::check($request->input('old_password'), $user->password)) {
+            return $this->actionFailure('Old password is incorrect');
+        }
+
+        // Make new password
+        $user->password = Hash::make($request->input('new_password'));
+
+        // Save new password
+        if (!$user->save()){
+            return $this->actionFailure('Failed to save password');
+        }
+
+        return $this->actionSuccess('Reset Successfull');
     }
 
     /**
