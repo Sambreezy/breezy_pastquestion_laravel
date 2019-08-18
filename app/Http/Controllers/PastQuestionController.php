@@ -169,6 +169,7 @@ class PastQuestionController extends Controller
      */
     public function multiSearchIndex(Request $request)
     {
+        $status = empty($request->input('status'))?true:$request->input('status');
         $department = is_null($request->input('department'))?$request->input('department'):Helper::escapeLikeForQuery($request->input('department'));
         $course_name = is_null($request->input('course_name'))?$request->input('course_name'):Helper::escapeLikeForQuery($request->input('course_name'));
         $course_code = is_null($request->input('course_code'))?$request->input('course_code'):Helper::escapeLikeForQuery($request->input('course_code'));
@@ -176,7 +177,8 @@ class PastQuestionController extends Controller
         $school = is_null($request->input('school'))?$request->input('school'):Helper::escapeLikeForQuery($request->input('school'));
         $year = is_null($request->input('year'))?$request->input('year'):Helper::escapeLikeForQuery($request->input('year'));
 
-        $past_questions = PastQuestion::where('department', 'like', '%'.$department.'%')
+        $past_questions = PastQuestion::where('approved', (boolean)$status)
+        ->where('department', 'like', '%'.$department.'%')
         ->where('course_name', 'like', '%'.$course_name.'%')
         ->where('course_code', 'like', '%'.$course_code.'%')
         ->where('semester', 'like', '%'.$semester.'%')
@@ -208,8 +210,10 @@ class PastQuestionController extends Controller
     public function singleSearchIndex(Request $request)
     {
         $search = is_null($request->input('search'))?$request->input('search'):Helper::escapeLikeForQuery($request->input('search'));
+        $status = empty($request->input('status'))?true:$request->input('status');
 
-        $past_questions = PastQuestion::where('department', 'like', '%'.$search.'%')
+        $past_questions = PastQuestion::where('approved', (boolean)$status)
+        ->where('department', 'like', '%'.$search.'%')
         ->orWhere('course_name', 'like', '%'.$search.'%')
         ->orWhere('course_code', 'like', '%'.$search.'%')
         ->orWhere('semester', 'like', '%'.$search.'%')
