@@ -145,7 +145,7 @@ class PastQuestionController extends Controller
             // Get all past questions with out their relations
             $past_questions = PastQuestion::where('uploaded_by', auth()->user()->id)
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->paginate(10);
         }
 
         if ($past_questions) {
@@ -169,7 +169,7 @@ class PastQuestionController extends Controller
      */
     public function multiSearchIndex(Request $request)
     {
-        $status = empty($request->input('status'))?true:$request->input('status');
+        $status = is_null($request->input('status'))?true:$request->input('status');
         $department = is_null($request->input('department'))?$request->input('department'):Helper::escapeLikeForQuery($request->input('department'));
         $course_name = is_null($request->input('course_name'))?$request->input('course_name'):Helper::escapeLikeForQuery($request->input('course_name'));
         $course_code = is_null($request->input('course_code'))?$request->input('course_code'):Helper::escapeLikeForQuery($request->input('course_code'));
@@ -177,7 +177,7 @@ class PastQuestionController extends Controller
         $school = is_null($request->input('school'))?$request->input('school'):Helper::escapeLikeForQuery($request->input('school'));
         $year = is_null($request->input('year'))?$request->input('year'):Helper::escapeLikeForQuery($request->input('year'));
 
-        $past_questions = PastQuestion::where('approved', (boolean)$status)
+        $past_questions = PastQuestion::where('approved', $status)
         ->where('department', 'like', '%'.$department.'%')
         ->where('course_name', 'like', '%'.$course_name.'%')
         ->where('course_code', 'like', '%'.$course_code.'%')
@@ -186,7 +186,7 @@ class PastQuestionController extends Controller
         ->where('year', 'like', '%'.$year.'%')
         ->orderBy('created_at', 'desc')
         ->take(500)
-        ->get();
+        ->paginate(10);
 
         if ($past_questions) {
             
@@ -209,22 +209,23 @@ class PastQuestionController extends Controller
      */
     public function singleSearchIndex(Request $request)
     {
+        $status = is_null($request->input('status'))?true:$request->input('status');
         $search = is_null($request->input('search'))?$request->input('search'):Helper::escapeLikeForQuery($request->input('search'));
-        $status = empty($request->input('status'))?true:$request->input('status');
 
         $past_questions = PastQuestion::where('approved', (boolean)$status)
-        ->where('department', 'like', '%'.$search.'%')
-        ->orWhere('course_name', 'like', '%'.$search.'%')
-        ->orWhere('course_code', 'like', '%'.$search.'%')
-        ->orWhere('semester', 'like', '%'.$search.'%')
-        ->orWhere('school', 'like', '%'.$search.'%')
-        ->orWhere('year', 'like', '%'.$search.'%')
-        ->orderBy('created_at', 'desc')
+        ->where(function ($query) use ($search) {
+            $query->where('department', 'like', '%'.$search.'%')
+            ->orWhere('course_name', 'like', '%'.$search.'%')
+            ->orWhere('course_code', 'like', '%'.$search.'%')
+            ->orWhere('semester', 'like', '%'.$search.'%')
+            ->orWhere('school', 'like', '%'.$search.'%')
+            ->orWhere('year', 'like', '%'.$search.'%');
+        })->orderBy('created_at', 'desc')
         ->take(500)
-        ->get();
+        ->paginate(10);
 
         if ($past_questions) {
-            
+
             if (count($past_questions) > 0) {
                 return $this->success($past_questions);
             } else {

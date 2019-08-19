@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AuthChangePasswordRequest extends FormRequest
+class AuthResetPasswordOmegaRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,8 @@ class AuthChangePasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required|uuid|max:100',
-            'old_password' => 'required',
+            'email' => 'required|email|max:100',
+            'key' => 'required',
             'new_password' => 'required|confirmed',
             'new_password_confirmation' => 'required|same:new_password',
         ];
@@ -39,11 +39,11 @@ class AuthChangePasswordRequest extends FormRequest
     public function messages()
     {
         return [
-            'id.required' => 'An id is required',
-            'id.uuid' => 'ID characters are not valid',
-            'id.max' => 'An id can not have more than 100 characters',
+            'email.required' => 'An email is required',
+            'email.max' => 'An email can not have more than 100 characters',
+            'email.email'  => 'Email is not valid',
 
-            'old_password.required'  => 'Old password is required',
+            'key.required'  => 'A reset key is required',
 
             'new_password.required'  => 'A new password is required',
             'new_password.confirmed'  => 'A new password confirmation is required',

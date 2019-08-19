@@ -8,7 +8,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegisterRequest;
-use App\Http\Requests\AuthResetPasswordRequest;
+use App\Http\Requests\AuthResetPasswordAlphaRequest;
+use App\Http\Requests\AuthResetPasswordOmegaRequest;
 use App\Http\Requests\AuthChangePasswordRequest;
 use App\Models\User;
 use App\Helpers\Helper;
@@ -86,11 +87,11 @@ class AuthController extends Controller
     }
 
     /**
-     * Reset a user password.
+     * Creates a reset user password token.
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function resetPassword(AuthResetPasswordRequest $request)
+    public function resetPasswordAlpha(AuthResetPasswordAlphaRequest $request)
     {
         // Check if email exsits
         $user = User::where('email', $request->input('email'))->first();
@@ -98,19 +99,52 @@ class AuthController extends Controller
             return $this->notFound('Ensure that the email belongs to you');
         }
 
-        // Make new password
-        $new_password = uniqid();
-        $user->password = Hash::make($new_password);
+        // Make a new token
+        $new_reset_token = uniqid();
+        $user->remember_token = Hash::make($new_reset_token);
+
+        // Save new token
+        if (!$user->save()){
+            return $this->actionFailure('Failed to reset password');
+        }
+
+        // Send an email to user
+        Helper::sendSimpleMail('key',['email'=>$user->email,'message'=>$new_reset_token, 'html_location'=>'']);
+
+        // Retrun success
+        return $this->actionSuccess('Reset successfull, please check email for link to reset password');
+    }
+
+    /**
+     * Reset a user password.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resetPasswordOmega(AuthResetPasswordOmegaRequest $request)
+    {
+        // Check if email exsits
+        $user = User::where('email', $request->input('email'))->first();
+        if (!$user) {
+            return $this->notFound('Ensure that the email belongs to you');
+        }
+
+        if (!Hash::check($request->input('key'), $user->remember_token)) {
+            return $this->unauthorized('Unable to reset password');
+        }
+
+        // Make a new password
+        $user->password = Hash::make($request->input('new_password'));
 
         // Save new password
         if (!$user->save()){
             return $this->actionFailure('Failed to reset password');
         }
 
-        // send an email to user
-        Helper::sendSimpleMail('key',['email'=>$user->email,'message'=>"Your new password is $new_password", 'html_location'=>'']);
+        // Send an email to user
+        Helper::sendSimpleMail('key',['email'=>$user->email,'message'=>'your password was successfully reset', 'html_location'=>'']);
 
-        return $this->actionSuccess('Reset successfull, please check email for new password');
+        // Retrun success
+        return $this->actionSuccess('Reset successfull, please login');
     }
 
     /**
@@ -127,11 +161,15 @@ class AuthController extends Controller
             return $this->notFound('Unable to identify account');
         }
 
+        if ($user->id !== auth()->user()->id) {
+            return $this->unauthorized('This account does not belong to you');
+        }
+
         if (!Hash::check($request->input('old_password'), $user->password)) {
             return $this->actionFailure('Old password is incorrect');
         }
 
-        // Make new password
+        // Make a new password
         $user->password = Hash::make($request->input('new_password'));
 
         // Save new password
