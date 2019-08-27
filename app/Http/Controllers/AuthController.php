@@ -8,8 +8,8 @@ use Illuminate\Support\Facades\Hash;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegisterRequest;
-use App\Http\Requests\AuthResetPasswordAlphaRequest;
-use App\Http\Requests\AuthResetPasswordOmegaRequest;
+use App\Http\Requests\AuthForgotPasswordRequest;
+use App\Http\Requests\AuthResetPasswordRequest;
 use App\Http\Requests\AuthChangePasswordRequest;
 use App\Models\User;
 use App\Helpers\Helper;
@@ -23,7 +23,7 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register','reset']]);
+        $this->middleware('auth:api', ['except' => ['login','register','forgotPassword','resetPassword']]);
     }
 
     /**
@@ -38,6 +38,12 @@ class AuthController extends Controller
 
         // Get the token
         if ($user) {
+
+            // Check if user has been banned
+            if ($user->blocked == true) {
+                return $this->forbidden('You are temporary banned, please contact support');
+            }
+    
             if (Hash::check($request->input('password'), $user->password)) {
                 $token = auth()->login($user);
 
@@ -67,7 +73,7 @@ class AuthController extends Controller
         $credentials = request(['name', 'email', 'phone', 'password']);
 
         // Check if email exsits
-        if (User::where('email', $request->input('email'))->first()) {
+        if (User::withTrashed()->where('email', $request->input('email'))->first()) {
             return $this->actionFailure('Email has been taken');
         }
 
@@ -91,7 +97,7 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function resetPasswordAlpha(AuthResetPasswordAlphaRequest $request)
+    public function forgotPassword(AuthForgotPasswordRequest $request)
     {
         // Check if email exsits
         $user = User::where('email', $request->input('email'))->first();
@@ -109,7 +115,11 @@ class AuthController extends Controller
         }
 
         // Send an email to user
-        Helper::sendSimpleMail('key',['email'=>$user->email,'message'=>$new_reset_token, 'html_location'=>'']);
+        Helper::sendSimpleMail('key',[
+            'email'=>$user->email,
+            'message'=>$new_reset_token, 
+            'topic'=>'forgotpassword'
+        ]);
 
         // Retrun success
         return $this->actionSuccess('Reset successfull, please check email for link to reset password');
@@ -120,7 +130,7 @@ class AuthController extends Controller
      *
      * @return \Illuminate\Http\JsonResponse
      */
-    public function resetPasswordOmega(AuthResetPasswordOmegaRequest $request)
+    public function resetPassword(AuthResetPasswordRequest $request)
     {
         // Check if email exsits
         $user = User::where('email', $request->input('email'))->first();
@@ -141,7 +151,11 @@ class AuthController extends Controller
         }
 
         // Send an email to user
-        Helper::sendSimpleMail('key',['email'=>$user->email,'message'=>'your password was successfully reset', 'html_location'=>'']);
+        Helper::sendSimpleMail('key',[
+            'email'=>$user->email,
+            'message'=>'your password was successfully reset', 
+            'topic'=>'resetpassword'
+        ]);
 
         // Retrun success
         return $this->actionSuccess('Reset successfull, please login');

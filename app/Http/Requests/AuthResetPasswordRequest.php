@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AuthResetPasswordAlphaRequest extends FormRequest
+class AuthResetPasswordRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -25,6 +25,9 @@ class AuthResetPasswordAlphaRequest extends FormRequest
     {
         return [
             'email' => 'required|email|max:100',
+            'key' => 'required',
+            'new_password' => 'required|confirmed',
+            'new_password_confirmation' => 'required|same:new_password',
         ];
     }
 
@@ -39,6 +42,13 @@ class AuthResetPasswordAlphaRequest extends FormRequest
             'email.required' => 'An email is required',
             'email.max' => 'An email can not have more than 100 characters',
             'email.email'  => 'Email is not valid',
+
+            'key.required'  => 'A reset key is required',
+
+            'new_password.required'  => 'A new password is required',
+            'new_password.confirmed'  => 'A new password confirmation is required',
+            'new_password_confirmation.required'  => 'A new password confirmation is required',
+            'new_password_confirmation.same'  => 'Passwords do not match',
         ];
     }
 }

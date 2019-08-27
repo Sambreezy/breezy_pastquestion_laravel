@@ -52,6 +52,7 @@ class PastQuestionController extends Controller
             ->with([
                 'image',
                 'document',
+                'comment',
             ])->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
@@ -62,6 +63,7 @@ class PastQuestionController extends Controller
             $past_questions = PastQuestion::with([
                 'image',
                 'document',
+                'comment',
             ])->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
@@ -72,6 +74,7 @@ class PastQuestionController extends Controller
             $past_questions = PastQuestion::onlyTrashed()->with([
                 'image',
                 'document',
+                'comment',
             ])->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
@@ -116,7 +119,7 @@ class PastQuestionController extends Controller
             // Get all past questions that are active/approved or inactive/unapproved
             $past_questions = PastQuestion::where('approved', (boolean)$request->input('status'))
             ->where('uploaded_by', auth()->user()->id)
-            ->with(['image','document',])
+            ->with(['image','document','comment',])
             ->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
@@ -125,7 +128,7 @@ class PastQuestionController extends Controller
             
             // Get all past questions with all their relations
             $past_questions = PastQuestion::where('uploaded_by', auth()->user()->id)
-            ->with(['image','document',])
+            ->with(['image','document','comment',])
             ->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
@@ -135,7 +138,7 @@ class PastQuestionController extends Controller
             // Get all deleted past questions with all their relations
             $past_questions = PastQuestion::where('uploaded_by', auth()->user()->id)
             ->onlyTrashed()
-            ->with(['image','document',])
+            ->with(['image','document','comment',])
             ->orderBy('created_at', 'desc')
             ->take(500)
             ->paginate(10);
@@ -303,6 +306,7 @@ class PastQuestionController extends Controller
         $past_question = PastQuestion::with([
             'image',
             'document',
+            'comment',
         ])->find($request->input('id'));
 
         if ($past_question) {  

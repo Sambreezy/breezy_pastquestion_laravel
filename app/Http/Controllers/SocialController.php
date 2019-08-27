@@ -81,11 +81,7 @@ class SocialController extends Controller
         if ($past_question) {
 
             // Ensure that value does not run into negative
-            $new_down_vote = ((integer) $past_question->vote_down) - $this->DOWNVOTE_ON_POST;
-            if ($new_down_vote <= 0 ) {
-               $new_down_vote = 0;
-            }
-            $past_question->vote_down = $new_down_vote;
+            $past_question->vote_down = ((integer) $past_question->vote_down) + $this->DOWNVOTE_ON_POST;
 
             // Save past question
             if ($past_question->save()) {

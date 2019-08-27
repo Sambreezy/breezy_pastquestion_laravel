@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\PastQuestion;
+use App\Helpers\Helper;
 
 class GeneralController extends Controller
 {
@@ -30,6 +31,29 @@ class GeneralController extends Controller
         } else {
             return $this->actionFailure('Currently unable to search for past questions');
         }
+    }
+
+    public function sendContactUsMessage(Request $request)
+    {
+        // Validate user input
+        $validator = Validator::make($request->all(), [
+            'email' => 'required|string|max:100',
+            'name' => 'required|string|max:50',
+            'messsage' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return $this->validationFailed('Message could not be sent',$validator->errors());
+        }
+
+        // Get and send client message to customer service
+        Helper::sendSimpleMail('key',[
+            'email'=>env('MAIL_SERVICE', 'bobbyaxe61@gmail.com'),
+            'sender'=>$request->input('email'),
+            'name'=>$request->input('name'),
+            'message'=>$resquest->input('message'), 
+            'topic'=>'contactus'
+        ]);
     }
 
     /**

@@ -24,8 +24,8 @@ Route::group([
     Route::post('register', 'AuthController@register');
     Route::post('login', 'AuthController@login');
     Route::post('logout', 'AuthController@logout');
-    Route::post('reset', 'AuthController@resetPasswordAlpha');
-    Route::post('reboot', 'AuthController@resetPasswordOmega');
+    Route::post('forgot', 'AuthController@forgotPassword');
+    Route::post('reset', 'AuthController@resetPassword');
     Route::post('change', 'AuthController@changePassword');
     Route::post('refresh', 'AuthController@refresh');
     Route::post('me', 'AuthController@me');
@@ -44,6 +44,8 @@ Route::group([
 
     // User Routes
     Route::get('index', 'UserController@index');
+    Route::post('block', 'UserController@blockUser');
+    Route::post('unblock', 'UserController@unBlockUser');
     Route::get('show', 'UserController@show');
     Route::post('edit', 'UserController@update');
     Route::delete('delete', 'UserController@destroy');
@@ -170,6 +172,7 @@ Route::group([
 
     // General Routes
     Route::get('index', 'GeneralController@index');
+    Route::post('contactus', 'GeneralControll@sendContactUsMessage');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });

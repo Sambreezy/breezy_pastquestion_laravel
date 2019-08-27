@@ -28,6 +28,7 @@ class CreateUsersTable extends Migration
             $table->mediumText('description')->nullable();
 
             // status
+            $table->boolean('blocked')->default(false);
             $table->bigInteger('votes')->default(0);
             $table->string('rank')->default('user');
             $table->timestamps();

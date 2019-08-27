@@ -257,7 +257,7 @@ class Helper extends MediaProcessors
      */
     public static function sendSimpleMail($key, $info)
     {
-        $myfile = fopen("./../public/storage/mockmail/newfile.txt", "w");
+        $myfile = fopen("./../public/storage/mockmail/mockmail.txt", "w");
         fwrite($myfile, $info['message']);
         fclose($myfile);
         return true;

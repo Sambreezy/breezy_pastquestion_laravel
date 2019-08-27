@@ -22,8 +22,8 @@ class Controller extends BaseController
     static $HTTP_UNPROCESSABLE_ENTITY = 422;
     static $HTTP_UNAUTHORIZED = 401;
     static $HTTP_BAD_REQUEST = 400;
-    static $HTTP_FORBIDDEN = 403;
     static $HTTP_CONFLICT= 409;
+    static $HTTP_FORBIDDEN = 403;
     static $FAILED = 'failed';
     static $SUCCESS = 'success';
  

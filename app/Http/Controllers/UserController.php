@@ -23,7 +23,15 @@ class UserController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware("VerifyRankToken:$this->USER_LEVEL_3", [
-            'only' => ['index','destroy','batchDestroy','restore','batchRestore',]
+            'only' => [
+                'index',
+                'blockUser',
+                'unBlockUser',
+                'destroy',
+                'batchDestroy',
+                'restore',
+                'batchRestore',
+            ]
         ]);
     }
 
@@ -71,6 +79,64 @@ class UserController extends Controller
         } else {
             return $this->actionFailure('Currently unable to search for users');
         }
+    }
+
+    /**
+     * Block / ban a user from accessing major app service
+     * 
+     * @param string  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function blockUser(UserSingleRequest $request)
+    {
+        // Check access level
+        if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
+            return $this->unauthorized('Please contact management');
+        }
+
+        // Check user id
+        $user = User::find($request->input('id'));
+        if (!$user) {
+            return $this->notFound('User was not found');
+        }
+
+        // Block user
+        $user->blocked = (boolean) true;
+        if (!$user->save()) {
+            return $this->actionFailure('Currently unable to block / ban user');
+        }
+
+        // return success
+        return $this->actionSuccess('User has been blocked / banned');
+    }
+
+    /**
+     * Unblock / un-ban a user to access major app service
+     * 
+     * @param string  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function unBlockUser(UserSingleRequest $request)
+    {
+        // Check access level
+        if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
+            return $this->unauthorized('Please contact management');
+        }
+
+        // Check user id
+        $user = User::find($request->input('id'));
+        if (!$user) {
+            return $this->notFound('User was not found');
+        }
+
+        // Unblock user
+        $user->blocked = (boolean) false;
+        if (!$user->save()) {
+            return $this->actionFailure('Currently unable to unblock / un-ban user');
+        }
+
+        // return success
+        return $this->actionSuccess('User has been unblocked / un-banned');
     }
 
     /**
