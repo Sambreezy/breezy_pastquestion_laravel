@@ -39,7 +39,7 @@ class GeneralController extends Controller
         $validator = Validator::make($request->all(), [
             'email' => 'required|string|max:100',
             'name' => 'required|string|max:50',
-            'messsage' => 'required|string',
+            'message' => 'required|string',
         ]);
 
         if ($validator->fails()) {
@@ -51,7 +51,7 @@ class GeneralController extends Controller
             'email'=>env('MAIL_SERVICE', 'bobbyaxe61@gmail.com'),
             'sender'=>$request->input('email'),
             'name'=>$request->input('name'),
-            'message'=>$resquest->input('message'), 
+            'message'=>$request->input('message'), 
             'topic'=>'contactus'
         ]);
     }

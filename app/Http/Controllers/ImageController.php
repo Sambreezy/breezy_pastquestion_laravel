@@ -24,7 +24,7 @@ class ImageController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware("VerifyRankToken:$this->USER_LEVEL_3", [
-            'only' => ['permanentDestroy','batchpermanentDestroy']
+            'only' => ['permanentDestroy','batchPermanentDestroy']
         ]);
     }
 
@@ -321,7 +321,7 @@ class ImageController extends Controller
                 }
             });
 
-            // Checkes if any images were deleted
+            // Check's if any images were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Image(s) deleted");
             } else {
@@ -329,7 +329,7 @@ class ImageController extends Controller
             }
 
         } else {
-            return $this->notfound('Image(s) not found');
+            return $this->notFound('Image(s) not found');
         }
     }
 
@@ -384,7 +384,7 @@ class ImageController extends Controller
                 }
             });
 
-            // Checkes if any images were restored
+            // Check's if any images were restored
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored Image(s) restored");
             } else {
@@ -392,7 +392,7 @@ class ImageController extends Controller
             }
 
         } else {
-            return $this->notfound('Image(s) not found');
+            return $this->notFound('Image(s) not found');
         }
     }
 
@@ -436,7 +436,7 @@ class ImageController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function batchpermanentDestroy(ImageMultipleRequest $request)
+    public function batchPermanentDestroy(ImageMultipleRequest $request)
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
@@ -460,7 +460,7 @@ class ImageController extends Controller
                 }
             });
 
-            // Checkes if any image were deleted
+            // Check's if any image were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Image(s) deleted");
             } else {
@@ -468,7 +468,7 @@ class ImageController extends Controller
             }
 
         } else {
-            return $this->notfound('Image(s) not found');
+            return $this->notFound('Image(s) not found');
         }
     }
 }

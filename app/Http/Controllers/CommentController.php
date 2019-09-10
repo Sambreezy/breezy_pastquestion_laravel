@@ -25,7 +25,7 @@ class CommentController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware("VerifyRankToken:$this->USER_LEVEL_3", [
-            'only' => ['flaggedCommentIndex','permanentDestroy','batchpermanentDestroy']
+            'only' => ['flaggedCommentIndex','permanentDestroy','batchPermanentDestroy']
         ]);
     }
 
@@ -409,7 +409,7 @@ class CommentController extends Controller
                 }
             });
 
-            // Checkes if any comments were deleted
+            // Check's if any comments were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Comment(s) deleted");
             } else {
@@ -417,7 +417,7 @@ class CommentController extends Controller
             }
 
         } else {
-            return $this->notfound('Comment(s) not found');
+            return $this->notFound('Comment(s) not found');
         }
     }
 
@@ -472,7 +472,7 @@ class CommentController extends Controller
                 }
             });
 
-            // Checkes if any comments were restored
+            // Check's if any comments were restored
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored Comment(s) restored");
             } else {
@@ -480,7 +480,7 @@ class CommentController extends Controller
             }
 
         } else {
-            return $this->notfound('Comment(s) not found');
+            return $this->notFound('Comment(s) not found');
         }
     }
 
@@ -518,7 +518,7 @@ class CommentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function batchpermanentDestroy(CommentMultipleRequest $request)
+    public function batchPermanentDestroy(CommentMultipleRequest $request)
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
@@ -536,7 +536,7 @@ class CommentController extends Controller
                 }
             });
 
-            // Checkes if any comment were deleted
+            // Check's if any comment were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Comment(s) deleted");
             } else {
@@ -544,7 +544,7 @@ class CommentController extends Controller
             }
 
         } else {
-            return $this->notfound('Comment(s) not found');
+            return $this->notFound('Comment(s) not found');
         }
     }
 }

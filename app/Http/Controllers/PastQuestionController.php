@@ -26,7 +26,7 @@ class PastQuestionController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware("VerifyRankToken:$this->USER_LEVEL_3", [
-            'only' => ['permanentDestroy','batchpermanentDestroy']
+            'only' => ['permanentDestroy','batchPermanentDestroy']
         ]);
     }
 
@@ -461,7 +461,7 @@ class PastQuestionController extends Controller
                 }
             });
 
-            // Checkes if any past questions were deleted
+            // Check's if any past questions were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Past question(s) deleted");
             } else {
@@ -469,7 +469,7 @@ class PastQuestionController extends Controller
             }
 
         } else {
-            return $this->notfound('Past question(s) not found');
+            return $this->notFound('Past question(s) not found');
         }
     }
 
@@ -524,7 +524,7 @@ class PastQuestionController extends Controller
                 }
             });
 
-            // Checkes if any past questions were restored
+            // Check's if any past questions were restored
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored Past question(s) restored");
             } else {
@@ -532,7 +532,7 @@ class PastQuestionController extends Controller
             }
 
         } else {
-            return $this->notfound('Past question(s) not found');
+            return $this->notFound('Past question(s) not found');
         }
     }
 
@@ -570,7 +570,7 @@ class PastQuestionController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function batchpermanentDestroy(PastQuestionMultipleRequest $request)
+    public function batchPermanentDestroy(PastQuestionMultipleRequest $request)
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
@@ -588,7 +588,7 @@ class PastQuestionController extends Controller
                 }
             });
 
-            // Checkes if any past questions were deleted
+            // Check's if any past questions were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Past question(s) deleted");
             } else {
@@ -596,7 +596,7 @@ class PastQuestionController extends Controller
             }
 
         } else {
-            return $this->notfound('Past question(s) not found');
+            return $this->notFound('Past question(s) not found');
         }
     }
 

@@ -297,7 +297,7 @@ class UserController extends Controller
                 }
             });
 
-            // Checkes if any users were deleted
+            // Check's if any users were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted User(s) deleted");
             } else {
@@ -305,7 +305,7 @@ class UserController extends Controller
             }
 
         } else {
-            return $this->notfound('User(s) not found');
+            return $this->notFound('User(s) not found');
         }
     }
 
@@ -363,7 +363,7 @@ class UserController extends Controller
                 }
             });
 
-            // Checkes if any users were restored
+            // Check's if any users were restored
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored User(s) restored");
             } else {
@@ -371,7 +371,7 @@ class UserController extends Controller
             }
 
         } else {
-            return $this->notfound('User(s) not found');
+            return $this->notFound('User(s) not found');
         }
     }
 
@@ -409,7 +409,7 @@ class UserController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function batchpermanentDestroy(UserMultipleRequest $request)
+    public function batchPermanentDestroy(UserMultipleRequest $request)
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
@@ -427,7 +427,7 @@ class UserController extends Controller
                 }
             });
 
-            // Checkes if any users were deleted
+            // Check's if any users were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted User(s) deleted");
             } else {
@@ -435,7 +435,7 @@ class UserController extends Controller
             }
 
         } else {
-            return $this->notfound('User(s) not found');
+            return $this->notFound('User(s) not found');
         }
     }
 }

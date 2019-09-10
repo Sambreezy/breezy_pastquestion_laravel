@@ -47,7 +47,7 @@ class Controller extends BaseController
  
     /**
      * Executes and returns well formatted json of errors 
-     * that occured during validation
+     * that occurred during validation
      *
      * @param string $message
      * @param collection $errors

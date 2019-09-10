@@ -72,7 +72,7 @@ class AuthController extends Controller
     {
         $credentials = request(['name', 'email', 'phone', 'password']);
 
-        // Check if email exsits
+        // Check if email exists
         if (User::withTrashed()->where('email', $request->input('email'))->first()) {
             return $this->actionFailure('Email has been taken');
         }
@@ -89,7 +89,7 @@ class AuthController extends Controller
             return $this->actionFailure('Failed to save details');
         }
 
-        return $this->actionSuccess('Registration Successfull');
+        return $this->actionSuccess('Registration Successful');
     }
 
     /**
@@ -99,7 +99,7 @@ class AuthController extends Controller
      */
     public function forgotPassword(AuthForgotPasswordRequest $request)
     {
-        // Check if email exsits
+        // Check if email exists
         $user = User::where('email', $request->input('email'))->first();
         if (!$user) {
             return $this->notFound('Ensure that the email belongs to you');
@@ -121,8 +121,8 @@ class AuthController extends Controller
             'topic'=>'forgotpassword'
         ]);
 
-        // Retrun success
-        return $this->actionSuccess('Reset successfull, please check email for link to reset password');
+        // Return success
+        return $this->actionSuccess('Reset successful, please check email for link to reset password');
     }
 
     /**
@@ -132,7 +132,7 @@ class AuthController extends Controller
      */
     public function resetPassword(AuthResetPasswordRequest $request)
     {
-        // Check if email exsits
+        // Check if email exists
         $user = User::where('email', $request->input('email'))->first();
         if (!$user) {
             return $this->notFound('Ensure that the email belongs to you');
@@ -157,8 +157,8 @@ class AuthController extends Controller
             'topic'=>'resetpassword'
         ]);
 
-        // Retrun success
-        return $this->actionSuccess('Reset successfull, please login');
+        // Return success
+        return $this->actionSuccess('Reset successful, please login');
     }
 
     /**
@@ -168,7 +168,7 @@ class AuthController extends Controller
      */
     public function changePassword(AuthChangePasswordRequest $request)
     {
-        // Check if user exsits
+        // Check if user exists
         $user = User::find($request->input('id'));
 
         if (!$user) {
@@ -191,7 +191,7 @@ class AuthController extends Controller
             return $this->actionFailure('Failed to save password');
         }
 
-        return $this->actionSuccess('Reset Successfull');
+        return $this->actionSuccess('Reset Successful');
     }
 
     /**

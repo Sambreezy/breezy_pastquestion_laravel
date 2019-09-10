@@ -4,7 +4,7 @@
     * Wherein know as the defendant states the following facts.
     * That:
     * Defendant is being owed for the digital software or any material that contains this file.
-    * Defendant's client has breached aggrement and has failed to pay defendant for services rendered .
+    * Defendant's client has breached agreement and has failed to pay defendant for services rendered .
     * Hence this file is left as evidence of breach of contract.
     * Also this file may serve as evidence to theft of intellectual property of the defendant by whom so ever possesses this file.
     */

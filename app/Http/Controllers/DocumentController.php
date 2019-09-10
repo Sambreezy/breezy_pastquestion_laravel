@@ -24,7 +24,7 @@ class DocumentController extends Controller
     {
         $this->middleware('auth:api');
         $this->middleware("VerifyRankToken:$this->USER_LEVEL_3", [
-            'only' => ['permanentDestroy','batchpermanentDestroy']
+            'only' => ['permanentDestroy','batchPermanentDestroy']
         ]);
     }
 
@@ -320,7 +320,7 @@ class DocumentController extends Controller
                 }
             });
 
-            // Checkes if any documents were deleted
+            // Check's if any documents were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Documents(s) deleted");
             } else {
@@ -328,7 +328,7 @@ class DocumentController extends Controller
             }
 
         } else {
-            return $this->notfound('Documents(s) not found');
+            return $this->notFound('Documents(s) not found');
         }
     }
 
@@ -383,7 +383,7 @@ class DocumentController extends Controller
                 }
             });
 
-            // Checkes if any documents were restored
+            // Check's if any documents were restored
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored Documents(s) restored");
             } else {
@@ -391,7 +391,7 @@ class DocumentController extends Controller
             }
 
         } else {
-            return $this->notfound('Documents(s) not found');
+            return $this->notFound('Documents(s) not found');
         }
     }
 
@@ -435,7 +435,7 @@ class DocumentController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function batchpermanentDestroy(DocumentMultipleRequest $request)
+    public function batchPermanentDestroy(DocumentMultipleRequest $request)
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
@@ -459,7 +459,7 @@ class DocumentController extends Controller
                 }
             });
 
-            // Checkes if any document were deleted
+            // Check's if any document were deleted
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Documents(s) deleted");
             } else {
@@ -467,7 +467,7 @@ class DocumentController extends Controller
             }
 
         } else {
-            return $this->notfound('Documents(s) not found');
+            return $this->notFound('Documents(s) not found');
         }
     }
 }
