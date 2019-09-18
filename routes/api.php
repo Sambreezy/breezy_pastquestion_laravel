@@ -53,7 +53,7 @@ Route::group([
     Route::post('restore', 'UserController@restore');
     Route::post('batchrestore', 'UserController@batchRestore');
     Route::delete('permanentdelete', 'UserController@permanentDestroy');
-    Route::delete('batchpermanentdelete', 'UserController@batchpermanentDestroy');
+    Route::delete('batchpermanentdelete', 'UserController@batchPermanentDestroy');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
@@ -80,7 +80,7 @@ Route::group([
     Route::post('restore', 'PastQuestionController@restore');
     Route::post('batchrestore', 'PastQuestionController@batchRestore');
     Route::delete('permanentdelete', 'PastQuestionController@permanentDestroy');
-    Route::delete('batchpermanentdelete', 'PastQuestionController@batchpermanentDestroy');
+    Route::delete('batchpermanentdelete', 'PastQuestionController@batchPermanentDestroy');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
@@ -105,7 +105,7 @@ Route::group([
     Route::post('restore', 'ImageController@restore');
     Route::post('batchrestore', 'ImageController@batchRestore');
     Route::delete('permanentdelete', 'ImageController@permanentDestroy');
-    Route::delete('batchpermanentdelete', 'ImageController@batchpermanentDestroy');
+    Route::delete('batchpermanentdelete', 'ImageController@batchPermanentDestroy');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
@@ -130,7 +130,7 @@ Route::group([
     Route::post('restore', 'DocumentController@restore');
     Route::post('batchrestore', 'DocumentController@batchRestore');
     Route::delete('permanentdelete', 'DocumentController@permanentDestroy');
-    Route::delete('batchpermanentdelete', 'DocumentController@batchpermanentDestroy');
+    Route::delete('batchpermanentdelete', 'DocumentController@batchPermanentDestroy');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
@@ -156,7 +156,7 @@ Route::group([
     Route::post('restore', 'CommentController@restore');
     Route::post('batchrestore', 'CommentController@batchRestore');
     Route::delete('permanentdelete', 'CommentController@permanentDestroy');
-    Route::delete('batchpermanentdelete', 'CommentController@batchpermanentDestroy');
+    Route::delete('batchpermanentdelete', 'CommentController@batchPermanentDestroy');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
@@ -172,7 +172,7 @@ Route::group([
 
     // General Routes
     Route::get('index', 'GeneralController@index');
-    Route::post('contactus', 'GeneralControll@sendContactUsMessage');
+    Route::post('contactus', 'GeneralController@sendContactUsMessage');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
