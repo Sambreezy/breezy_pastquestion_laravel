@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 use App\Models\PastQuestion;
 use App\Helpers\Helper;
 
@@ -46,14 +47,19 @@ class GeneralController extends Controller
             return $this->validationFailed('Message could not be sent',$validator->errors());
         }
 
-        // Get and send client message to customer service
-        Helper::sendSimpleMail('key',[
-            'email'=>env('MAIL_SERVICE', 'bobbyaxe61@gmail.com'),
-            'sender'=>$request->input('email'),
-            'name'=>$request->input('name'),
-            'message'=>$request->input('message'), 
-            'topic'=>'contactus'
-        ]);
+            // Get and send client message to customer service
+            if (!Helper::sendSimpleMail('key',[
+                    'email'=>env('CUSTOMER_SERVICE_MAIL','bobbyaxe61@gmail.com'),
+                    'sender'=>$request->input('email'),
+                    'name'=>$request->input('name'),
+                    'message'=>$request->input('message'), 
+                    'topic'=>'contactus'
+                ])) {
+                return $this->actionFailure('Message could not be sent');
+            }
+
+        // Return success
+        return $this->actionSuccess('Message has been sent');
     }
 
     /**
