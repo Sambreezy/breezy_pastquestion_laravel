@@ -228,7 +228,7 @@ class UserController extends Controller
                 //     }
                 // }
 
-                $user->picture = $processed_images[0]->image_url;
+                $user->picture = $processed_images[0]['image_url'];
             }
 
             // clean request
