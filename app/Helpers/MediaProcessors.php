@@ -65,7 +65,7 @@ class MediaProcessors
 	 * @param  string $image_location
 	 * @return boolean
 	 */
-	public static function unstoreImage($image_location)
+	public static function unStoreImage($image_location)
 	{
 		if($image_location) {
 
@@ -144,7 +144,7 @@ class MediaProcessors
 	 * @param  string $file_location
 	 * @return boolean
 	 */
-	public static function unstoreFile($file_location)
+	public static function unStoreFile($file_location)
 	{
 		if($file_location) {
 

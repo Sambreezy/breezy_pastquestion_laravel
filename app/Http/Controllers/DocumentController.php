@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PastQuestion;
 use App\Models\Document;
-use App\Helpers\Helper;
+use App\Helpers\BatchMediaProcessors;
 use App\Http\Requests\DocumentStoreRequest;
 use App\Http\Requests\DocumentUpdateRequest;
 use App\Http\Requests\DocumentSingleRequest;
@@ -169,8 +169,19 @@ class DocumentController extends Controller
                 if ($number_of_previous_documents < $this->NO_ALLOWED_UPLOADS) {
                     $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_documents;
 
+                    // Add additional parameters to be returned with every successful saved document
+                    $additional = [
+                        'past_question_id' => $past_question->id,
+                        'uploaded_by' => auth()->user()->id,
+                    ];
+
                     // Store new documents to server or cloud
-                    $processed_documents = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $past_question->id, auth()->user()->id, $NEW_NO_ALLOWED_UPLOADS);
+                    $processed_documents = BatchMediaProcessors::batchStoreFiles(
+                        $request->file('docs'), 
+                        'public/documents',
+                        $additional,
+                        $NEW_NO_ALLOWED_UPLOADS
+                    );
 
                     // Save past question documents
                     if (!$processed_documents || !Document::insert($processed_documents)) {
@@ -240,17 +251,31 @@ class DocumentController extends Controller
                     return $this->unauthorized('The original document was not uploaded by you');
                 }
 
-                // Store new documents to server or cloud
-                $processed_documents = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $document->past_question_id, auth()->user()->id, $this->NO_ALLOWED_UPLOADS);
+                // Add additional parameters to be returned with every successful saved document
+                $additional = [
+                    'past_question_id' => $document->past_question_id,
+                    'uploaded_by' => auth()->user()->id,
+                ];
+
+                $processed_documents = BatchMediaProcessors::batchStoreFiles(
+                    $request->file('docs'), 
+                    'public/documents',
+                    $additional,
+                    $this->NO_ALLOWED_UPLOADS
+                );
+
+                // Check if documents were processed
                 if (!$processed_documents) {
                     return $this->actionFailure('Currently unable to update document');
                 }
 
                 // Remove previously stored document from server or cloud
-                // $removed_documents = Helper::batchUnstoreFiles($document);
-                // if (!$removed_documents) {
-                //     return $this->actionFailure('Currently unable to update document');
-                // }
+                if (config('ovsettings.document_permanent_delete')) {
+                    $removed_documents = BatchMediaProcessors::batchUnStoreFiles([$document]);
+                    if (!$removed_documents) {
+                        return $this->actionFailure('Currently unable to delete old document');
+                    }
+                }
 
                 // Fill in replacement document details
                 $document->doc_name = $processed_documents[0]['doc_name'];
@@ -411,15 +436,16 @@ class DocumentController extends Controller
         // Find the document
         $document = Document::find($request->input('id'));
         if ($document) {
-
-            // Remove previously stored document from server or cloud
-            // $removed_document = Helper::batchUnstoreFiles($document);
-            // if (!$removed_document) {
-            //     return $this->actionFailure('Currently unable to delete document');
-            // }
-
+            
             if ($document->forceDelete()) {
-                return $this->actionSuccess('Document was deleted');
+                
+                // Remove previously stored document from server or cloud
+                if (config('ovsettings.document_permanent_delete')) {
+                    $removed_document = BatchMediaProcessors::batchUnStoreFiles([$document]);
+                    $removed_document = (!$removed_document)? 0 : 1;
+                } else { $removed_document = 0; }
+
+                return $this->actionSuccess("Document record was deleted with $removed_document document file(s) removed");
             } else {
                 return $this->actionFailure('Currently unable to delete document');
             }
@@ -446,12 +472,6 @@ class DocumentController extends Controller
         $document = Document::whereIn('id', $request->input('documents'))->get();
         if ($document) {
 
-            // Remove previously stored documents from server or cloud
-            // $removed_documents = Helper::batchUnstoreFiles($document);
-            // if (!$removed_documents) {
-            //     return $this->actionFailure('Currently unable to delete some documents');
-            // }
-
             // Deletes all found document
             $filtered = $document->filter(function ($value, $key) {
                 if ($value->forceDelete()) {
@@ -461,7 +481,18 @@ class DocumentController extends Controller
 
             // Check's if any document were deleted
             if (($deleted = count($filtered)) > 0) {
-                return $this->actionSuccess("$deleted Documents(s) deleted");
+
+                // Remove previously stored documents from server or cloud
+                if (config('ovsettings.document_permanent_delete')) {
+                    $removed_documents = $filtered->filter(function ($value, $key){
+                        if (BatchMediaProcessors::batchUnStoreFiles([$value])){
+                            return true;
+                        }
+                    });
+                    $removed_documents = count($removed_documents);
+                } else { $removed_documents = 0; }
+
+                return $this->actionSuccess("$deleted Document record(s) deleted with $removed_documents document file(s) removed");
             } else {
                 return $this->actionFailure('Currently unable to delete documents(s)');
             }

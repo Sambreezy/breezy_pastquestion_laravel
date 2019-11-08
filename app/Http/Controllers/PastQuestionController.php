@@ -7,6 +7,7 @@ use App\Models\PastQuestion;
 use App\Models\Image;
 use App\Models\Document;
 use App\Helpers\Helper;
+use App\Helpers\BatchMediaProcessors;
 use App\Http\Requests\PastQuestionStoreRequest;
 use App\Http\Requests\PastQuestionUpdateRequest;
 use App\Http\Requests\PastQuestionSingleRequest;
@@ -188,7 +189,7 @@ class PastQuestionController extends Controller
         ->where('school', 'like', '%'.$school.'%')
         ->where('year', 'like', '%'.$year.'%')
         ->orderBy('created_at', 'desc')
-        ->take(500)
+        ->take(100)
         ->paginate(10);
 
         if ($past_questions) {
@@ -224,7 +225,7 @@ class PastQuestionController extends Controller
             ->orWhere('school', 'like', '%'.$search.'%')
             ->orWhere('year', 'like', '%'.$search.'%');
         })->orderBy('created_at', 'desc')
-        ->take(500)
+        ->take(100)
         ->paginate(10);
 
         if ($past_questions) {
@@ -273,7 +274,20 @@ class PastQuestionController extends Controller
 
         // Check if photos were submitted 
         if (!is_null($request->file('photos')) && is_array($request->file('photos'))) {
-            $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, auth()->user()->id, $this->NO_ALLOWED_UPLOADS);
+
+            // Add additional parameters to be returned with every successful saved image
+            $additional = [
+                'past_question_id' => $past_question->id,
+                'uploaded_by' => auth()->user()->id,
+            ];
+
+            // Store new images to server or cloud
+            $processed_images = BatchMediaProcessors::batchStoreImages(
+                $request->file('photos'), 
+                'public/images', 
+                $additional,
+                $this->NO_ALLOWED_UPLOADS
+            );
 
             // Save past question images
             if (!$processed_images || !Image::insert($processed_images)) {
@@ -283,7 +297,19 @@ class PastQuestionController extends Controller
 
         // Check if documents were submitted 
         if (!is_null($request->file('docs')) && is_array($request->file('docs'))) {
-            $processed_docs = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $past_question->id, auth()->user()->id, $this->NO_ALLOWED_UPLOADS);
+
+            // Add additional parameters to be returned with every successful saved document
+            $additional = [
+                'past_question_id' => $past_question->id,
+                'uploaded_by' => auth()->user()->id,
+            ];
+
+            $processed_docs = BatchMediaProcessors::batchStoreFiles(
+                $request->file('docs'), 
+                'public/documents',
+                $additional,
+                $this->NO_ALLOWED_UPLOADS
+            );
 
             // Save past question documents
             if (!$processed_docs || !Document::insert($processed_docs)) {
@@ -335,7 +361,7 @@ class PastQuestionController extends Controller
      */
     public function update(PastQuestionUpdateRequest $request)
     {
-        $past_question = PastQuestion::find($request->input('id'));
+        $past_question = PastQuestion::with('image','document')->find($request->input('id'));
 
         if ($past_question) {
             
@@ -363,13 +389,33 @@ class PastQuestionController extends Controller
                     if ($number_of_previous_images < $this->NO_ALLOWED_UPLOADS) {
                         $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_images;
 
+                        // Add additional parameters to be returned with every successful saved image
+                        $additional = [
+                            'past_question_id' => $past_question->id,
+                            'uploaded_by' => auth()->user()->id,
+                        ];
+
                         // Store new images to server or cloud
-                        $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, auth()->user()->id, $NEW_NO_ALLOWED_UPLOADS);
+                        $processed_images = BatchMediaProcessors::batchStoreImages(
+                            $request->file('photos'), 
+                            'public/images', 
+                            $additional,
+                            $NEW_NO_ALLOWED_UPLOADS
+                        );
 
                         // Save past question images
                         if (!$processed_images || !Image::insert($processed_images)) {
                             return $this->actionFailure('Currently unable to save images');
                         }
+
+                        // Remove previously stored images from server or cloud
+                        if (config('ovsettings.image_permanent_delete')) {
+                            $removed_image = BatchMediaProcessors::batchUnStoreFiles($past_question->image);
+                            if (!$removed_image) {
+                                return $this->actionFailure('Currently unable to remove old images');
+                            }
+                        }
+
                     } else {
                         return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' images are allowed');
                     }
@@ -390,13 +436,33 @@ class PastQuestionController extends Controller
                     if ($number_of_previous_docs < $this->NO_ALLOWED_UPLOADS) {
                         $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_docs;
 
+                        // Add additional parameters to be returned with every successful saved document
+                        $additional = [
+                            'past_question_id' => $past_question->id,
+                            'uploaded_by' => auth()->user()->id,
+                        ];
+
                         // Store new documents to server or cloud
-                        $processed_docs = Helper::batchStoreFiles($request->file('docs'), 'public/documents', $past_question->id, auth()->user()->id, $NEW_NO_ALLOWED_UPLOADS);
+                        $processed_docs = BatchMediaProcessors::batchStoreFiles(
+                            $request->file('docs'), 
+                            'public/documents',
+                            $additional,
+                            $NEW_NO_ALLOWED_UPLOADS
+                        );
 
                         // Save past question documents
                         if (!$processed_docs || !Document::insert($processed_docs)) {
                             return $this->actionFailure('Currently unable to save documents');
                         }
+
+                        // Remove previously stored document from server or cloud
+                        if (config('ovsettings.document_permanent_delete')) {
+                            $removed_document = BatchMediaProcessors::batchUnStoreFiles($past_question->document);
+                            if (!$removed_document) {
+                                return $this->actionFailure('Currently unable to remove old documents');
+                            }
+                        }
+
                     } else {
                         return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' documents are allowed');
                     }
@@ -549,12 +615,26 @@ class PastQuestionController extends Controller
             return $this->unauthorized('Please contact management');
         }
 
-        // Find the past question
-        $past_question = PastQuestion::find($request->input('id'));
+        // Find the past question.
+        $past_question = PastQuestion::with('image','document')->find($request->input('id'));
         if ($past_question) {
 
             if ($past_question->forceDelete()) {
-                return $this->actionSuccess('Past question was deleted');
+                
+                // Remove previously stored images from server or cloud
+                if (config('ovsettings.image_permanent_delete')) {
+                    $removed_images = BatchMediaProcessors::batchUnStoreImages($past_question->image);
+                    $removed_images = (!$removed_images)? 0 : 1;
+                } else { $removed_images = 0; }
+
+                // Remove previously stored document from server or cloud
+                if (config('ovsettings.document_permanent_delete')) {
+                    $removed_documents = BatchMediaProcessors::batchUnStoreFiles($past_question->document);
+                    $removed_documents = (!$removed_documents)? 0 : 1;
+                } else { $removed_documents = 0; }
+
+                return $this->actionSuccess("Past question was deleted with $removed_images image file(s) and $removed_documents document File(s) removed");
+
             } else {
                 return $this->actionFailure('Currently unable to delete past question');
             }
@@ -578,7 +658,8 @@ class PastQuestionController extends Controller
         }
 
         // Gets all the past questions in the array by id
-        $past_questions = PastQuestion::whereIn('id', $request->input('past_questions'))->get();
+        $past_questions = PastQuestion::with('image','document')
+        ->whereIn('id', $request->input('past_questions'))->get();
         if ($past_questions) {
 
             // Deletes all found past questions
@@ -590,7 +671,28 @@ class PastQuestionController extends Controller
 
             // Check's if any past questions were deleted
             if (($deleted = count($filtered)) > 0) {
-                return $this->actionSuccess("$deleted Past question(s) deleted");
+
+                // Remove previously stored images from server or cloud
+                if (config('ovsettings.image_permanent_delete')) {
+                    $removed_images = $filtered->filter(function ($value, $key){
+                        if (BatchMediaProcessors::batchUnStoreImages($value->image)){
+                            return true;
+                        }
+                    });
+                    $removed_images = count($removed_images);
+                } else { $removed_images = 0; }
+
+                // Remove previously stored document from server or cloud
+                if (config('ovsettings.document_permanent_delete')) {
+                    $removed_documents = $filtered->filter(function ($value, $key){
+                        if (BatchMediaProcessors::batchUnStoreFiles($value->document)) {
+                            return true;
+                        }
+                    });
+                    $removed_documents = count($removed_documents);
+                } else { $removed_documents = 0; }
+
+                return $this->actionSuccess("$deleted Past question(s) deleted with $removed_images image file(s) and $removed_documents document File(s) removed");
             } else {
                 return $this->actionFailure('Currently unable to delete past question(s)');
             }

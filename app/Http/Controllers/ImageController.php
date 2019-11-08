@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\PastQuestion;
 use App\Models\Image;
-use App\Helpers\Helper;
+use App\Helpers\BatchMediaProcessors;
 use App\Http\Requests\ImageStoreRequest;
 use App\Http\Requests\ImageUpdateRequest;
 use App\Http\Requests\ImageSingleRequest;
@@ -170,8 +170,19 @@ class ImageController extends Controller
                 if ($number_of_previous_images < $this->NO_ALLOWED_UPLOADS) {
                     $NEW_NO_ALLOWED_UPLOADS = $this->NO_ALLOWED_UPLOADS - $number_of_previous_images;
 
+                    // Add additional parameters to be returned with every successful saved image
+                    $additional = [
+                        'past_question_id' => $past_question->id,
+                        'uploaded_by' => auth()->user()->id,
+                    ];
+
                     // Store new images to server or cloud
-                    $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $past_question->id, auth()->user()->id, $NEW_NO_ALLOWED_UPLOADS);
+                    $processed_images = BatchMediaProcessors::batchStoreImages(
+                        $request->file('photos'), 
+                        'public/images', 
+                        $additional,
+                        $NEW_NO_ALLOWED_UPLOADS
+                    );
 
                     // Save past question images
                     if (!$processed_images || !Image::insert($processed_images)) {
@@ -241,17 +252,32 @@ class ImageController extends Controller
                     return $this->unauthorized('The original image was not uploaded by you');
                 }
 
+                // Add additional parameters to be returned with every successful saved image
+                $additional = [
+                    'past_question_id' => $image->past_question_id,
+                    'uploaded_by' => auth()->user()->id,
+                ];
+
                 // Store new images to server or cloud
-                $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/images', $image->past_question_id, auth()->user()->id, $this->NO_ALLOWED_UPLOADS);
+                $processed_images = BatchMediaProcessors::batchStoreImages(
+                    $request->file('photos'), 
+                    'public/images', 
+                    $additional,
+                    $this->NO_ALLOWED_UPLOADS
+                );
+
+                // Check if images were processed
                 if (!$processed_images) {
                     return $this->actionFailure('Currently unable to update image');
                 }
 
                 // Remove previously stored image from server or cloud
-                // $removed_images = Helper::batchUnstoreImages($image);
-                // if (!$removed_images) {
-                //     return $this->actionFailure('Currently unable to update image');
-                // }
+                if (config('ovsettings.image_permanent_delete')) {
+                    $removed_images = BatchMediaProcessors::batchUnStoreImages([$image]);
+                    if (!$removed_images) {
+                        return $this->actionFailure('Currently unable to delete old image');
+                    }
+                }
 
                 // Fill in replacement image details
                 $image->image_name = $processed_images[0]['image_name'];
@@ -413,14 +439,15 @@ class ImageController extends Controller
         $image = Image::find($request->input('id'));
         if ($image) {
 
-            // Remove previously stored image from server or cloud
-            // $removed_images = Helper::batchUnstoreImages($image);
-            // if (!$removed_images) {
-            //     return $this->actionFailure('Currently unable to delete image');
-            // }
-
             if ($image->forceDelete()) {
-                return $this->actionSuccess('Image was deleted');
+
+                // Remove previously stored images from server or cloud
+                if (config('ovsettings.image_permanent_delete')) {
+                    $removed_image = BatchMediaProcessors::batchUnStoreImages([$image]);
+                    $removed_image = (!$removed_image)? 0 : 1;
+                } else { $removed_image = 0; }
+
+                return $this->actionSuccess("Image record was deleted with $removed_image image file(s) removed");
             } else {
                 return $this->actionFailure('Currently unable to delete image');
             }
@@ -447,12 +474,6 @@ class ImageController extends Controller
         $image = Image::whereIn('id', $request->input('images'))->get();
         if ($image) {
 
-            // Remove previously stored images from server or cloud
-            // $removed_images = Helper::batchUnstoreImages($image);
-            // if (!$removed_images) {
-            //     return $this->actionFailure('Currently unable to delete some images');
-            // }
-
             // Deletes all found image
             $filtered = $image->filter(function ($value, $key) {
                 if ($value->forceDelete()) {
@@ -462,7 +483,18 @@ class ImageController extends Controller
 
             // Check's if any image were deleted
             if (($deleted = count($filtered)) > 0) {
-                return $this->actionSuccess("$deleted Image(s) deleted");
+
+                // Remove previously stored images from server or cloud
+                if (config('ovsettings.image_permanent_delete')) {
+                    $removed_images = $filtered->filter(function ($value, $key){
+                        if (BatchMediaProcessors::batchUnStoreImages([$value])){
+                            return true;
+                        }
+                    });
+                    $removed_images = count($removed_images);
+                } else { $removed_images = 0; }
+
+                return $this->actionSuccess("$deleted Image record(s) deleted with $removed_images image file(s) removed");
             } else {
                 return $this->actionFailure('Currently unable to delete image(s)');
             }
