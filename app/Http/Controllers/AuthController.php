@@ -103,6 +103,20 @@ class AuthController extends Controller
             return $this->actionFailure('Failed to save details');
         }
 
+        // Get an ovsettings value
+        $email_verification = config('ovsettings.email_verification', false);
+
+        // Check if email verification is active
+        if ($email_verification) {
+            
+            // Send an email to user containing email validation link
+            $this->sendEmail(
+                $request->input('email'),
+                'email-verification',
+                $this->createEmailVerificationToken($request->input('email'))
+            );
+        }
+
         return $this->actionSuccess('Registration Successful');
     }
 
