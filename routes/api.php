@@ -28,6 +28,7 @@ Route::group([
     Route::post('reset', 'AuthController@resetPassword');
     Route::post('change', 'AuthController@changePassword');
     Route::post('refresh', 'AuthController@refresh');
+    Route::post('verify', 'AuthController@verifyEmail');
     Route::post('me', 'AuthController@me');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);

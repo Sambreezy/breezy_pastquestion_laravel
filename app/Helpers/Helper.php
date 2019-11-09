@@ -50,11 +50,10 @@ class Helper
     /**
      * Send an email to a specified address
      * 
-     * @param string $key
-     * @param array $info
+     * @param string $message
      * @return boolean
      */
-    public static function sendSimpleMail($key, $info)
+    public static function sendSimpleMail($message)
     {
         try {
 
@@ -65,7 +64,7 @@ class Helper
 
             // Write a message to text file
             $filename = "./../public/storage/mockmail/mockmail.txt";
-            file_put_contents($filename, "\n".$info['message'], FILE_APPEND | LOCK_EX);
+            file_put_contents($filename, "\n".$message, FILE_APPEND | LOCK_EX);
 
         } catch (\Throwable $th) {
             return false;

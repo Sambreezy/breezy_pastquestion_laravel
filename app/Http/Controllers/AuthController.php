@@ -11,6 +11,7 @@ use App\Http\Requests\AuthRegisterRequest;
 use App\Http\Requests\AuthForgotPasswordRequest;
 use App\Http\Requests\AuthResetPasswordRequest;
 use App\Http\Requests\AuthChangePasswordRequest;
+use App\Http\Requests\AuthVerifyEmailRequest;
 use App\Models\User;
 use App\Helpers\Helper;
 
@@ -23,7 +24,9 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => ['login','register','forgotPassword','resetPassword']]);
+        $this->middleware('auth:api', ['except' => [
+            'login','register','forgotPassword','resetPassword','verifyEmail'
+        ]]);
     }
 
     /**
@@ -43,7 +46,18 @@ class AuthController extends Controller
             if ($user->blocked == true) {
                 return $this->forbidden('You are temporary banned, please contact support');
             }
-    
+
+            // Get an ovsettings value
+            $email_verification = config('ovsettings.email_verification', false);
+            $grace_period = config('ovsettings.grace_period', 10080);
+
+            // Check if user has validated email
+            if ($email_verification) {
+                if (!$this->isEmailVerified($user, $grace_period)) {
+                    return $this->forbidden('Your email is not yet verified, check mail for verification link');
+                }
+            }
+
             if (Hash::check($request->input('password'), $user->password)) {
                 $token = auth()->login($user);
 
@@ -115,11 +129,7 @@ class AuthController extends Controller
         }
 
         // Send an email to user
-        Helper::sendSimpleMail('key',[
-            'email'=>$user->email,
-            'message'=>$new_reset_token, 
-            'topic'=>'forgotpassword'
-        ]);
+        $this->sendEmail($user->email,'forgot-password', $new_reset_token);
 
         // Return success
         return $this->actionSuccess('Reset successful, please check email for link to reset password');
@@ -151,11 +161,7 @@ class AuthController extends Controller
         }
 
         // Send an email to user
-        Helper::sendSimpleMail('key',[
-            'email'=>$user->email,
-            'message'=>'your password was successfully reset', 
-            'topic'=>'resetpassword'
-        ]);
+        $this->sendEmail($user->email,'reset-password','your password was successfully reset');
 
         // Return success
         return $this->actionSuccess('Reset successful, please login');
@@ -191,7 +197,18 @@ class AuthController extends Controller
             return $this->actionFailure('Failed to save password');
         }
 
-        return $this->actionSuccess('Reset Successful');
+        // Send an email to user informing about password change
+        $this->sendEmail(
+            $user->email,
+            'password-reset-info',
+            'your password was changed on '.date('Y-m-d H:i:s',time())
+        );
+
+        // Logout user
+        auth()->logout();
+        
+        // Return success
+        return $this->actionSuccess('Reset Successful, Please Login');
     }
 
     /**
@@ -240,5 +257,183 @@ class AuthController extends Controller
             'token_type' => 'bearer',
             'expires_in' => auth()->factory()->getTTL() * 60
         ]);
+    }
+
+    /**
+     * Validates an email verification token.
+     *
+     * @param object $user
+     * @param integer $grace_period
+     * 
+     * @return boolean
+     */
+    public function isEmailVerified($user=null, $grace_period=0)
+    {
+        try {
+            // Check if user is already verified
+            if ($user->email_verified_at) {
+
+                // Return success
+                return true;
+            }
+
+            if ($grace_period != 0) {
+
+                /**
+                 * Gets time in which user account was created 
+                 * Adds stated grace period to time user account was created
+                 * Checks if user is still within grace period
+                 * Lets user access the app and still create a verification email
+                 */
+                $grace_period = strtotime($user->created_at) + ($grace_period*60);
+                if ($grace_period > time()) {
+
+                    // Send an email to user containing email validation link
+                    $this->sendEmail(
+                        $user->email,
+                        'email-verification',
+                        $this->createEmailVerificationToken($user->email)
+                    );
+
+                    // Return success
+                    return true;
+                }
+            }
+
+            // Send an email to user containing email validation link
+            $this->sendEmail(
+                $user->email,
+                'email-verification',
+                $this->createEmailVerificationToken($user->email)
+            );
+
+            // Return failure
+            return false;
+
+        } catch (\Throwable $th) {
+
+            // Return failure
+            return false;
+        }
+    }
+
+    /**
+     * Creates an email verification token.
+     *
+     * @param string $email
+     * 
+     * @return boolean false
+     * @return string
+     */
+    public function createEmailVerificationToken($email)
+    {
+        // Get an ovsettings value
+        $token_key = config('ovsettings.email_verification_token_key', false);
+
+        function tokenMaker($token_key, $email){
+
+            // Check if key exists and is more than 32 characters
+            if (!$token_key || strlen($token_key)<32) {
+                yield false;
+            }
+
+            // Make a new token
+            try {
+                // Split both strings to arrays of grouped types and merge
+                $array = array_merge(
+                    str_split(strtok($email,'@'), 1), 
+                    str_split($token_key, 1)
+                );
+
+                // Sort array values in order of natural numbers
+                natsort($array);
+
+                // Take all the array keys only
+                $array = array_keys($array);
+                $token = '';
+
+                // Mesh array key and values in to a string
+                foreach ($array as $key => $value) {
+                    $token .= $key.$value; 
+                }
+
+                // Hash the string
+                $token = md5($token);
+
+                // Yield results
+                yield $token;
+
+            } catch (\Throwable $th) {
+                yield false;
+            }
+        }
+
+        // Run tokenMaker generator
+        foreach (tokenMaker($token_key, $email) as $key) {
+            $token = $key;
+        }
+
+        // Return success
+        if (strlen($token) == 32 && ctype_xdigit($token)) {
+            return $token;
+        }
+
+        // Return Failure
+        return false;
+    }
+
+    /**
+     * Verify a user email.
+     *
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function verifyEmail(AuthVerifyEmailRequest $request)
+    {
+        // Check email
+        $user = User::where('email', $request->input('email'))->first();
+        if (!$user) {
+            return $this->notFound('Ensure that the email belongs to you');
+        }
+
+        // Recreate token
+        $token = $this->createEmailVerificationToken($request->input('email'));
+
+        // Compare token
+        if ($token !== $request->input('token')) {
+            return $this->actionFailure('Currently unable to validate email');
+        }
+
+        // Time stamp validation
+        $user->email_verified_at = date('Y-m-d H:i:s', time());
+        if (!$user->save()) {
+            return $this->failure('Currently unable to properly validate email');
+        }
+
+        // Return success
+        return $this->actionSuccess('Successfully validated email');
+    }
+
+    /**
+     * Prepares an email with verification token to be sent.
+     *
+     * @param string $email
+     * @param string $topic
+     * @param string $message
+     *
+     * @return boolean
+     */
+    public function sendEmail($email, $topic, $message=null)
+    {
+        // Email parameters
+        if (!$email || !$topic) {
+            return false;
+        }
+
+        // Send an email to user containing the appropriate email subject
+        // Place email sender function here
+        Helper::sendSimpleMail($email.' '.$topic.' '.$message);
+
+        // Return success
+        return true;
     }
 }
