@@ -44,15 +44,6 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array
-     */
-    protected $guarded = [
-        'blocked', 'votes', 'rank',
-    ];
-
-    /**
      * The attributes that should be hidden for arrays.
      *
      * @var array

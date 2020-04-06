@@ -30,17 +30,6 @@ class PastQuestion extends Model
     ];
 
     /**
-     * The attributes that aren't mass assignable.
-     *
-     * @var array
-     */
-    protected $guarded = [
-        'vote_up', 
-        'vote_down',
-        'approved',
-    ];
-
-    /**
      * The attributes that should be hidden for arrays.
      *
      * @var array
