@@ -22,7 +22,7 @@ Route::group([
 
     // Auth Routes
     Route::post('register', 'AuthController@register');
-    Route::post('login', 'AuthController@login');
+    Route::all('login', 'AuthController@login');
     Route::post('logout', 'AuthController@logout');
     Route::post('forgot', 'AuthController@forgotPassword');
     Route::post('reset', 'AuthController@resetPassword');
