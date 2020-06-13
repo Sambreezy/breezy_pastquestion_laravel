@@ -1,99 +1,74 @@
 <!doctype html>
-<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<html lang="{{ app()->getLocale() }}">
     <head>
         <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
         <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta name="csrf-token" content="{{ csrf_token() }}">
+        <title>{{env('APP_NAME')}}</title>
 
-        <title>Laravel</title>
+        {{-- Styles --}}
+        <link href="{{ asset('css/material-kit.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/material-kit.min.css?v=2.0.5') }}" rel="stylesheet">
+        <link href="{{ asset('css/custom-kit.css') }}" rel="stylesheet">
+        <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 
-        <!-- Fonts -->
-        <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet">
-
-        <!-- Styles -->
-        <style>
-            html, body {
-                background-color: #fff;
-                color: #636b6f;
-                font-family: 'Nunito', sans-serif;
-                font-weight: 200;
-                height: 100vh;
-                margin: 0;
-            }
-
-            .full-height {
-                height: 100vh;
-            }
-
-            .flex-center {
-                align-items: center;
-                display: flex;
-                justify-content: center;
-            }
-
-            .position-ref {
-                position: relative;
-            }
-
-            .top-right {
-                position: absolute;
-                right: 10px;
-                top: 18px;
-            }
-
-            .content {
-                text-align: center;
-            }
-
-            .title {
-                font-size: 84px;
-            }
-
-            .links > a {
-                color: #636b6f;
-                padding: 0 25px;
-                font-size: 13px;
-                font-weight: 600;
-                letter-spacing: .1rem;
-                text-decoration: none;
-                text-transform: uppercase;
-            }
-
-            .m-b-md {
-                margin-bottom: 30px;
-            }
-        </style>
+        <!--  Fonts and icons  -->
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700|Roboto+Slab:400,700|Material+Icons"/>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/latest/css/font-awesome.min.css" />
+        <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.1.1/css/all.css" integrity="sha384-O8whS3fhG2OnA5Kas0Y9l3cfpmYjapjI0E4theH4iuMD+pLhbf6JI0jIMfYcK3yZ" crossorigin="anonymous" />
     </head>
     <body>
-        <div class="flex-center position-ref full-height">
-            @if (Route::has('login'))
-                <div class="top-right links">
-                    @auth
-                        <a href="{{ url('/home') }}">Home</a>
-                    @else
-                        <a href="{{ route('login') }}">Login</a>
+        <div id="root"></div>
 
-                        @if (Route::has('register'))
-                            <a href="{{ route('register') }}">Register</a>
-                        @endif
-                    @endauth
-                </div>
-            @endif
+        {{-- Script --}}
+        <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script>
+        <script src="{{asset('js/core/jquery.min.js')}}" type="text/javascript"></script>
+        <script src="{{asset('js/core/popper.min.js')}}" type="text/javascript"></script>
+        <script src="{{asset('js/plugins/moment.min.js')}}" type="text/javascript"></script>
+        <script src="{{asset('js/core/bootstrap-material-design.min.js')}}" type="text/javascript"></script>
 
-            <div class="content">
-                <div class="title m-b-md">
-                    Laravel
-                </div>
+        <!--  Plugin for the Datepicker, full documentation here: https://github.com/Eonasdan/bootstrap-datetimepicker -->
+        <script src="{{asset('js/plugins/bootstrap-datetimepicker.js')}}" type="text/javascript"> </script>
 
-                <div class="links">
-                    <a href="https://laravel.com/docs">Docs</a>
-                    <a href="https://laracasts.com">Laracasts</a>
-                    <a href="https://laravel-news.com">News</a>
-                    <a href="https://blog.laravel.com">Blog</a>
-                    <a href="https://nova.laravel.com">Nova</a>
-                    <a href="https://forge.laravel.com">Forge</a>
-                    <a href="https://github.com/laravel/laravel">GitHub</a>
-                </div>
-            </div>
-        </div>
+        <!--  Plugin for the Sliders, full documentation here: http://refreshless.com/nouislider/ -->
+        <script src="{{asset('js/plugins/nouislider.min.js')}}" type="text/javascript"> </script>
+
+        <!--  Google Maps Plugin  -->
+        {{-- <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_KEY_HERE"></script> --}}
+
+        <!-- Control Center for Material Kit: parallax effects, scripts for the example pages etc -->
+        <script src="{{asset('js/material-kit.js?v=2.0.5')}}" type="text/javascript"></script>
+        <script src="{{asset('js/material-kit.min.js')}}" defer></script>
+
+        <script>
+            // var nav = document.getElementsByClassName('navbar'); // Identify target
+            setTimeout(function() {
+                if (window.screen.width > 600) {
+                document.getElementById('openNav').classList.remove('collapse');
+                }
+                window.scrollTo(0, 0);
+            }, 500);
+        
+            window.addEventListener('scroll', function(event) {
+                // To listen for event
+                event.preventDefault();
+                if (window.scrollY < 55) {
+                document
+                    .getElementById('myNavbar')
+                    .classList.add('navbar-transparent');
+                document.getElementById('myNavbar').classList.remove('breezy');
+                // Just an example
+                } else {
+                document
+                    .getElementById('myNavbar')
+                    .classList.remove('navbar-transparent');
+                document.getElementById('myNavbar').classList.add('breezy');
+                }
+            });
+        </script>
+
+        <script src="{{ asset('js/app.js') }}"></script>
+
     </body>
 </html>

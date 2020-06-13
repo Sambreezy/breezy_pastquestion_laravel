@@ -12,11 +12,13 @@
 */
 
 // Default Route
-Route::any('/', function(){
-    return response(
-        'See Documentation At 
-            <a href ="https://documenter.getpostman.com/view/6713287/SVmvUKcu">
-                https://documenter.getpostman.com/view/6713287/SVmvUKcu
-            </a>'
-    );
-});
+Route::view('/{path?}', 'welcome');
+
+// Route::any('/', function(){
+//     return response(
+//         'See Documentation At 
+//             <a href ="https://documenter.getpostman.com/view/6713287/SVmvUKcu">
+//                 https://documenter.getpostman.com/view/6713287/SVmvUKcu
+//             </a>'
+//     );
+// });
