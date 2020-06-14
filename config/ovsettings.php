@@ -24,7 +24,7 @@ return [
     | validation checks, this can be changed at any point in the life of the 
     | of the application but it is recommended to set it this before deploying
     */
-    'email_verification' => true,
+    'email_verification' => env('OV_EMAIL_VERIFICATION',true),
 
     /*
     |--------------------------------------------------------------------------
@@ -50,7 +50,50 @@ return [
     | for this value to be effective email_verification must be set to true
     |
     */
-    'email_verification_token_key' => 'Tw1L5DkA0fpg6Iuc2JKpHPANfuKCnlVs',
+    'email_verification_token' => env('OV_EMAIL_TOKEN'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Api Exception Handler
+    |--------------------------------------------------------------------------
+    |
+    | This is used by the exception handler located at App\Exceptions\Handler.php
+    | to set exception handling to use json responses from the ApiResponderTrait
+    | located at App\Traits\ApiResponderTrait.php as return values for all laravel
+    | and custom exceptions. Set to false to return laravel exception render.
+    |
+    */
+    'api_exception_handler' => env('OV_EXCEPTION_HANDLER',true),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Encryption And Decryption Key
+    |--------------------------------------------------------------------------
+    |
+    | This key is used by the various crypt functions for encryption or
+    | decryption of sensitive assets and should be set to a random,
+    | 32 character string, otherwise these generated token
+    | can be guessed. Please do this before deploying an application!
+    |
+    */
+    'cipher_token' => env('OV_CIPHER_TOKEN'),
+
+    /*
+    |--------------------------------------------------------------------------
+    | Mock Mail
+    |--------------------------------------------------------------------------
+    |
+    | This value is used by the email sending functions to determine when to
+    | send an actual email to the giving address or send to a predefined mock 
+    | address and can only be set to boolean (true) or (false). setting this 
+    | to true will activate sending to the mock email address, while setting to  
+    | false will deactivate sending to mock email address which will in turn   
+    | allow for sending to the indicated email address this can be changed at    
+    | any point in the life of the of the application but it is recommended 
+    | to set it this before deploying.
+    |
+    */
+    'mock_mail' => env('OV_MOCK_MAIL', true),
 
     /*
     |--------------------------------------------------------------------------

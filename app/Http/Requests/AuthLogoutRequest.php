@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class AuthVerifyEmailRequest extends FormRequest
+class AuthLogoutRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -24,8 +24,7 @@ class AuthVerifyEmailRequest extends FormRequest
     public function rules()
     {
         return [
-            'email' => 'required|email|max:100',
-            'token' => 'required',
+            //
         ];
     }
 
@@ -37,10 +36,7 @@ class AuthVerifyEmailRequest extends FormRequest
     public function messages()
     {
         return [
-            'email.required' => 'An email is required',
-            'email.max' => 'An email can not have more than 100 characters',
-            'email.email'  => 'Email is not valid',
-            'token.required'  => 'A reset token is required',
+            //
         ];
     }
 }

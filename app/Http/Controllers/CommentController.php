@@ -72,7 +72,7 @@ class CommentController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for comments');
+            return $this->requestConflict('Currently unable to search for comments');
         }
     }
 
@@ -128,7 +128,7 @@ class CommentController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for comments');
+            return $this->requestConflict('Currently unable to search for comments');
         }
     }
 
@@ -177,7 +177,7 @@ class CommentController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for comments');
+            return $this->requestConflict('Currently unable to search for comments');
         }
     }
 
@@ -201,11 +201,11 @@ class CommentController extends Controller
     {
         // check if requirements are met
         if (empty($request->input('comment')) && empty($request->input('reply'))) {
-            return $this->failure('A comment or reply is required');
+            return $this->badRequest('A comment or reply is required');
         }
 
         if (!empty($request->input('comment')) && !empty($request->input('reply'))) {
-            return $this->failure('Can not process both comment and reply');
+            return $this->badRequest('Can not process both comment and reply');
         }
 
         // Validate past question id
@@ -252,7 +252,7 @@ class CommentController extends Controller
         if ($comment->save()) {
             return $this->actionSuccess('Comment was added');
         } else {
-            return $this->actionFailure('Currently unable to add comment');
+            return $this->requestConflict('Currently unable to add comment');
         }
     }
 
@@ -296,11 +296,11 @@ class CommentController extends Controller
     {
         // check if requirements are met
         if (empty($request->input('comment')) && empty($request->input('reply'))) {
-            return $this->failure('A comment or reply is required');
+            return $this->badRequest('A comment or reply is required');
         }
 
         if (!empty($request->input('comment')) && !empty($request->input('reply'))) {
-            return $this->failure('Can not process both comment and reply');
+            return $this->badRequest('Can not process both comment and reply');
         }
 
         $comment = Comment::find($request->input('id'));
@@ -309,18 +309,18 @@ class CommentController extends Controller
             // Check if original comment was a comment 
             // If so then it can only be edited by a comment
             if ($comment->comment && empty($request->input('comment'))) {
-               return $this->failure('Only a comment input can be accepted for this id');
+               return $this->badRequest('Only a comment input can be accepted for this id');
             }
 
             // Check if original comment was a reply
             // If so then it can only be edited by a reply
             if ($comment->reply && empty($request->input('reply'))) {
-               return $this->failure('Only a reply input can be accepted for this id');
+               return $this->badRequest('Only a reply input can be accepted for this id');
             }
 
             // Validate comment owner
             if ($comment->user_id !== auth()->user()->id) {
-                return $this->unauthorized('The comment was not made by you');
+                return $this->authenticationFailure('The comment was not made by you');
             }
 
             // Merge additional required values
@@ -353,7 +353,7 @@ class CommentController extends Controller
             if ($comment->save()) {
                 return $this->actionSuccess('Comment was updated');
             } else {
-                return $this->actionFailure('Currently unable to update comment');
+                return $this->requestConflict('Currently unable to update comment');
             }
 
         } else {
@@ -374,13 +374,13 @@ class CommentController extends Controller
         if ($comment) {  
 
             if ($comment->user_id !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
-                return $this->unauthorized('This comment was not uploaded by you');
+                return $this->authenticationFailure('This comment was not uploaded by you');
             }
 
             if ($comment->delete()) {
                 return $this->actionSuccess('Comment was deleted');
             } else {
-                return $this->actionFailure('Currently unable to delete comment');
+                return $this->requestConflict('Currently unable to delete comment');
             }
 
         } else {
@@ -413,7 +413,7 @@ class CommentController extends Controller
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Comment(s) deleted");
             } else {
-                return $this->actionFailure('Currently unable to delete comment(s)');
+                return $this->requestConflict('Currently unable to delete comment(s)');
             }
 
         } else {
@@ -434,13 +434,13 @@ class CommentController extends Controller
         if ($comment) {  
             
             if ($comment->user_id !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
-                return $this->unauthorized('This comment was not uploaded by you');
+                return $this->authenticationFailure('This comment was not uploaded by you');
             }
 
             if ($comment->restore()) {
                 return $this->actionSuccess('Comment was restored');
             } else {
-                return $this->actionFailure('Currently unable to restore comment');
+                return $this->requestConflict('Currently unable to restore comment');
             }
 
         } else {
@@ -476,7 +476,7 @@ class CommentController extends Controller
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored Comment(s) restored");
             } else {
-                return $this->actionFailure('Currently unable to restore Comment(s)');
+                return $this->requestConflict('Currently unable to restore Comment(s)');
             }
 
         } else {
@@ -494,7 +494,7 @@ class CommentController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Find the comment
@@ -504,7 +504,7 @@ class CommentController extends Controller
             if ($comment->forceDelete()) {
                 return $this->actionSuccess('Comment was deleted');
             } else {
-                return $this->actionFailure('Currently unable to delete comment');
+                return $this->requestConflict('Currently unable to delete comment');
             }
 
         } else {
@@ -522,7 +522,7 @@ class CommentController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Gets all the comment in the array by id
@@ -540,7 +540,7 @@ class CommentController extends Controller
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Comment(s) deleted");
             } else {
-                return $this->actionFailure('Currently unable to delete comment(s)');
+                return $this->requestConflict('Currently unable to delete comment(s)');
             }
 
         } else {

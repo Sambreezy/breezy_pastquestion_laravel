@@ -72,7 +72,7 @@ class DocumentController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for documents');
+            return $this->requestConflict('Currently unable to search for documents');
         }
     }
 
@@ -125,7 +125,7 @@ class DocumentController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for documents');
+            return $this->requestConflict('Currently unable to search for documents');
         }
     }
 
@@ -155,7 +155,7 @@ class DocumentController extends Controller
 
         // Validate past question owner
         if ($past_question->uploaded_by !== auth()->user()->id) {
-            return $this->unauthorized('This document related past question was not uploaded by you');
+            return $this->authenticationFailure('This document related past question was not uploaded by you');
         }
 
         // Check if photos were submitted 
@@ -185,17 +185,17 @@ class DocumentController extends Controller
 
                     // Save past question documents
                     if (!$processed_documents || !Document::insert($processed_documents)) {
-                        return $this->actionFailure('Currently unable to save documents');
+                        return $this->requestConflict('Currently unable to save documents');
                     }
                 } else {
-                    return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' documents are allowed');
+                    return $this->forbiddenAccess('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' documents are allowed');
                 }
 
             } else {
-                return $this->actionFailure('Currently unable to process document past question records');
+                return $this->requestConflict('Currently unable to process document past question records');
             }
         } else {
-            return $this->failure('Current request can not be processed');
+            return $this->badRequest('Current request can not be processed');
         }
 
         // return success
@@ -248,7 +248,7 @@ class DocumentController extends Controller
 
                 // Validate document owner
                 if ($document->uploaded_by !== auth()->user()->id) {
-                    return $this->unauthorized('The original document was not uploaded by you');
+                    return $this->authenticationFailure('The original document was not uploaded by you');
                 }
 
                 // Add additional parameters to be returned with every successful saved document
@@ -266,14 +266,14 @@ class DocumentController extends Controller
 
                 // Check if documents were processed
                 if (!$processed_documents) {
-                    return $this->actionFailure('Currently unable to update document');
+                    return $this->requestConflict('Currently unable to update document');
                 }
 
                 // Remove previously stored document from server or cloud
                 if (config('ovsettings.document_permanent_delete')) {
                     $removed_documents = BatchMediaProcessors::batchUnStoreFiles([$document]);
                     if (!$removed_documents) {
-                        return $this->actionFailure('Currently unable to delete old document');
+                        return $this->requestConflict('Currently unable to delete old document');
                     }
                 }
 
@@ -283,10 +283,10 @@ class DocumentController extends Controller
 
                 // Save document
                 if (!$document->save()) {
-                    return $this->actionFailure('Currently unable to update document');
+                    return $this->requestConflict('Currently unable to update document');
                 }
             } else {
-                return $this->failure('Current request can not be processed');
+                return $this->badRequest('Current request can not be processed');
             }
 
             // return success
@@ -310,13 +310,13 @@ class DocumentController extends Controller
         if ($document) {  
 
             if ($document->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
-                return $this->unauthorized('This document was not uploaded by you');
+                return $this->authenticationFailure('This document was not uploaded by you');
             }
 
             if ($document->delete()) {
                 return $this->actionSuccess('Document was deleted');
             } else {
-                return $this->actionFailure('Currently unable to delete document');
+                return $this->requestConflict('Currently unable to delete document');
             }
 
         } else {
@@ -349,7 +349,7 @@ class DocumentController extends Controller
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Documents(s) deleted");
             } else {
-                return $this->actionFailure('Currently unable to delete document(s)');
+                return $this->requestConflict('Currently unable to delete document(s)');
             }
 
         } else {
@@ -370,13 +370,13 @@ class DocumentController extends Controller
         if ($document) {  
             
             if ($document->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
-                return $this->unauthorized('This document was not uploaded by you');
+                return $this->authenticationFailure('This document was not uploaded by you');
             }
 
             if ($document->restore()) {
                 return $this->actionSuccess('Document was restored');
             } else {
-                return $this->actionFailure('Currently unable to restore document');
+                return $this->requestConflict('Currently unable to restore document');
             }
 
         } else {
@@ -412,7 +412,7 @@ class DocumentController extends Controller
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored Documents(s) restored");
             } else {
-                return $this->actionFailure('Currently unable to restore Documents(s)');
+                return $this->requestConflict('Currently unable to restore Documents(s)');
             }
 
         } else {
@@ -430,7 +430,7 @@ class DocumentController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Find the document
@@ -447,7 +447,7 @@ class DocumentController extends Controller
 
                 return $this->actionSuccess("Document record was deleted with $removed_document document file(s) removed");
             } else {
-                return $this->actionFailure('Currently unable to delete document');
+                return $this->requestConflict('Currently unable to delete document');
             }
 
         } else {
@@ -465,7 +465,7 @@ class DocumentController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Gets all the document in the array by id
@@ -494,7 +494,7 @@ class DocumentController extends Controller
 
                 return $this->actionSuccess("$deleted Document record(s) deleted with $removed_documents document file(s) removed");
             } else {
-                return $this->actionFailure('Currently unable to delete documents(s)');
+                return $this->requestConflict('Currently unable to delete documents(s)');
             }
 
         } else {

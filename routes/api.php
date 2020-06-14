@@ -28,12 +28,18 @@ Route::group([
     Route::post('reset', 'AuthController@resetPassword');
     Route::post('change', 'AuthController@changePassword');
     Route::post('refresh', 'AuthController@refresh');
-    Route::post('verify', 'AuthController@verifyEmail');
     Route::post('me', 'AuthController@me');
+    Route::get('verify', 'AuthController@verifyEmail');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });
-
+    
+    // Socialite Routes
+    Route::get('socialite/facebook', 'SocialiteController@redirectToFacebookProvider');
+    Route::get('socialite/facebook/callback', 'SocialiteController@handleFacebookProviderCallback');
+    Route::get('socialite/linkedin', 'SocialiteController@redirectToLinkedinProvider');
+    Route::get('socialite/linkedin/callback', 'SocialiteController@handleLinkedinProviderCallback');
+    Route::get('socialite/test', 'SocialiteController@test');
 });
 
 Route::group([
@@ -174,6 +180,7 @@ Route::group([
     // General Routes
     Route::get('index', 'GeneralController@index');
     Route::post('contactus', 'GeneralController@sendContactUsMessage');
+    Route::get('universities', 'GeneralController@showUniversities');
     Route::get('test', function(){
         return response()->json('See https://github.com/bobbyaxe61',200);
     });

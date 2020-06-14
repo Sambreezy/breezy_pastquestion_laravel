@@ -53,7 +53,7 @@ class SocialController extends Controller
                     if ($user->save()) {
                         return $this->actionSuccess('Past question was voted');
                     } else {
-                        return $this->actionFailure('Currently unable to up vote user');
+                        return $this->requestConflict('Currently unable to up vote user');
                     }
 
                 } else {
@@ -61,7 +61,7 @@ class SocialController extends Controller
                 }
 
             } else {
-                return $this->actionFailure('Currently unable to up vote past question');
+                return $this->requestConflict('Currently unable to up vote past question');
             }
         } else {
             return $this->notFound('Can not find past question');
@@ -99,7 +99,7 @@ class SocialController extends Controller
                     if ($user->save()) {
                         return $this->actionSuccess('Past question was voted');
                     } else {
-                        return $this->actionFailure('Currently unable to down vote user');
+                        return $this->requestConflict('Currently unable to down vote user');
                     }
 
                 } else {
@@ -107,7 +107,7 @@ class SocialController extends Controller
                 }
 
             } else {
-                return $this->actionFailure('Currently unable to down vote past question');
+                return $this->requestConflict('Currently unable to down vote past question');
             }
         } else {
             return $this->notFound('Can not find past question');
@@ -144,7 +144,7 @@ class SocialController extends Controller
                 // return a success message
                 return $this->actionSuccess("Thank you, This comment has been flagged");
             } else {
-                return $this->actionFailure('Currently unable to flag comment');
+                return $this->requestConflict('Currently unable to flag comment');
             }
         } else {
             return $this->notFound('Can not find comment');

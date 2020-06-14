@@ -7,6 +7,51 @@
 <a href="https://packagist.org/packages/laravel/framework"><img src="https://poser.pugx.org/laravel/framework/license.svg" alt="License"></a>
 </p>
 
+## Deploying This Application
+
+#### Prerequisites 
+- -- [php version 7.3 installed](https://www.php.net/downloads.php)
+- -- [composer 1.9.0 installed](https://getcomposer.org/download/)
+- -- [xampp with maria db 10.4.8 support](https://www.apachefriends.org/download.html) or [MariaDB 10.4.8 Server host system installed](https://downloads.mariadb.org/)
+
+#### Recommendations
+- -- [postman version 7.10.0](https://www.getpostman.com/)
+
+#### Procedure
+- Open bash terminal
+```
+git clone git@github.com:bobbyaxe61/laravel-api-jwt-boilerplate-1.git
+cd cloned/app/folder
+composer update
+```
+- "composer update" command would be the equivalent of "npm install" command in react.js
+- Create an sql data base (using a different type may require additional configuration)
+- Update the settings in the .env.example file with your created data base parameters
+```
+nano .env.example
+```
+- rename .env.example file to .env
+```
+mv .env.example .env
+```
+- set application key
+- run migrations to create tables in database
+- run seeders to insert data in the created tables
+```
+php artisan key:generate
+php artisan ovkey:generate
+php artisan jwt:secret
+php artisan migrate
+php artisan db:seed
+```
+- start server
+```
+php artisan serve
+```
+- "php artisan serve" command would be the equivalent of "npm start" command in react.js
+- open severing address to view app
+- use "blue@gmail.com" as email and "blueblue" as password for login, if seeder was used.
+
 ## About Laravel
 
 Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:

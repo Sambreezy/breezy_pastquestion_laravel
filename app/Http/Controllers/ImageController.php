@@ -72,7 +72,7 @@ class ImageController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for images');
+            return $this->requestConflict('Currently unable to search for images');
         }
     }
 
@@ -126,7 +126,7 @@ class ImageController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for images');
+            return $this->requestConflict('Currently unable to search for images');
         }
     }
 
@@ -156,7 +156,7 @@ class ImageController extends Controller
 
         // Validate past question owner
         if ($past_question->uploaded_by !== auth()->user()->id) {
-            return $this->unauthorized('This image related past question was not uploaded by you');
+            return $this->authenticationFailure('This image related past question was not uploaded by you');
         }
 
         // Check if photos were submitted 
@@ -186,17 +186,17 @@ class ImageController extends Controller
 
                     // Save past question images
                     if (!$processed_images || !Image::insert($processed_images)) {
-                        return $this->actionFailure('Currently unable to save images');
+                        return $this->requestConflict('Currently unable to save images');
                     }
                 } else {
-                    return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' images are allowed');
+                    return $this->forbiddenAccess('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' images are allowed');
                 }
 
             } else {
-                return $this->actionFailure('Currently unable to process image past question records');
+                return $this->requestConflict('Currently unable to process image past question records');
             }
         } else {
-           return $this->failure('Current request can not be processed');
+           return $this->badRequest('Current request can not be processed');
         }
 
         // return success
@@ -249,7 +249,7 @@ class ImageController extends Controller
 
                 // Validate image owner
                 if ($image->uploaded_by !== auth()->user()->id) {
-                    return $this->unauthorized('The original image was not uploaded by you');
+                    return $this->authenticationFailure('The original image was not uploaded by you');
                 }
 
                 // Add additional parameters to be returned with every successful saved image
@@ -268,14 +268,14 @@ class ImageController extends Controller
 
                 // Check if images were processed
                 if (!$processed_images) {
-                    return $this->actionFailure('Currently unable to update image');
+                    return $this->requestConflict('Currently unable to update image');
                 }
 
                 // Remove previously stored image from server or cloud
                 if (config('ovsettings.image_permanent_delete')) {
                     $removed_images = BatchMediaProcessors::batchUnStoreImages([$image]);
                     if (!$removed_images) {
-                        return $this->actionFailure('Currently unable to delete old image');
+                        return $this->requestConflict('Currently unable to delete old image');
                     }
                 }
 
@@ -285,10 +285,10 @@ class ImageController extends Controller
 
                 // Save image
                 if (!$image->save()) {
-                    return $this->actionFailure('Currently unable to update image');
+                    return $this->requestConflict('Currently unable to update image');
                 }
             } else {
-                return $this->failure('Current request can not be processed');
+                return $this->badRequest('Current request can not be processed');
             }
 
             // return success
@@ -312,13 +312,13 @@ class ImageController extends Controller
         if ($image) {  
 
             if ($image->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
-                return $this->unauthorized('This image was not uploaded by you');
+                return $this->authenticationFailure('This image was not uploaded by you');
             }
 
             if ($image->delete()) {
                 return $this->actionSuccess('Image was deleted');
             } else {
-                return $this->actionFailure('Currently unable to delete image');
+                return $this->requestConflict('Currently unable to delete image');
             }
 
         } else {
@@ -351,7 +351,7 @@ class ImageController extends Controller
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Image(s) deleted");
             } else {
-                return $this->actionFailure('Currently unable to delete image(s)');
+                return $this->requestConflict('Currently unable to delete image(s)');
             }
 
         } else {
@@ -372,13 +372,13 @@ class ImageController extends Controller
         if ($image) {  
             
             if ($image->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
-                return $this->unauthorized('This image was not uploaded by you');
+                return $this->authenticationFailure('This image was not uploaded by you');
             }
 
             if ($image->restore()) {
                 return $this->actionSuccess('Image was restored');
             } else {
-                return $this->actionFailure('Currently unable to restore image');
+                return $this->requestConflict('Currently unable to restore image');
             }
 
         } else {
@@ -414,7 +414,7 @@ class ImageController extends Controller
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored Image(s) restored");
             } else {
-                return $this->actionFailure('Currently unable to restore Image(s)');
+                return $this->requestConflict('Currently unable to restore Image(s)');
             }
 
         } else {
@@ -432,7 +432,7 @@ class ImageController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Find the image
@@ -449,7 +449,7 @@ class ImageController extends Controller
 
                 return $this->actionSuccess("Image record was deleted with $removed_image image file(s) removed");
             } else {
-                return $this->actionFailure('Currently unable to delete image');
+                return $this->requestConflict('Currently unable to delete image');
             }
 
         } else {
@@ -467,7 +467,7 @@ class ImageController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Gets all the image in the array by id
@@ -496,7 +496,7 @@ class ImageController extends Controller
 
                 return $this->actionSuccess("$deleted Image record(s) deleted with $removed_images image file(s) removed");
             } else {
-                return $this->actionFailure('Currently unable to delete image(s)');
+                return $this->requestConflict('Currently unable to delete image(s)');
             }
 
         } else {

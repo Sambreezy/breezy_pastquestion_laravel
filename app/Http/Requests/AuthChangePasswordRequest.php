@@ -24,9 +24,8 @@ class AuthChangePasswordRequest extends FormRequest
     public function rules()
     {
         return [
-            'id' => 'required|uuid|max:100',
             'old_password' => 'required',
-            'new_password' => 'required|confirmed',
+            'new_password' => 'required|min:6|max:24|confirmed',
             'new_password_confirmation' => 'required|same:new_password',
         ];
     }
@@ -39,13 +38,10 @@ class AuthChangePasswordRequest extends FormRequest
     public function messages()
     {
         return [
-            'id.required' => 'An id is required',
-            'id.uuid' => 'ID characters are not valid',
-            'id.max' => 'An id can not have more than 100 characters',
-
             'old_password.required'  => 'Old password is required',
-
             'new_password.required'  => 'A new password is required',
+            'new_password.min'  => 'Password must have a minimum of 6 characters',
+            'new_password.max'  => 'Password must have a maximum of 24 characters',
             'new_password.confirmed'  => 'A new password confirmation is required',
             'new_password_confirmation.required'  => 'A new password confirmation is required',
             'new_password_confirmation.same'  => 'Passwords do not match',

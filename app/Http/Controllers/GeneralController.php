@@ -30,7 +30,7 @@ class GeneralController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for past questions');
+            return $this->requestConflict('Currently unable to search for past questions');
         }
     }
 
@@ -44,7 +44,7 @@ class GeneralController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return $this->validationFailed('Message could not be sent',$validator->errors());
+            return $this->formProcessingFailure('Message could not be sent',$validator->errors());
         }
 
             // Get and send client message to customer service
@@ -55,7 +55,7 @@ class GeneralController extends Controller
                     'message'=>$request->input('message'), 
                     'topic'=>'contactus'
                 ])) {
-                return $this->actionFailure('Message could not be sent');
+                return $this->requestConflict('Message could not be sent');
             }
 
         // Return success
@@ -126,5 +126,21 @@ class GeneralController extends Controller
     public function destroy()
     {
         //
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  string  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function showUniversities()
+    {
+        // Retrieve universities from json file
+        $contents = file_get_contents('../dependencies/universities.json');
+        $universities_list = collect(json_decode($contents, true));
+
+        // Return success
+        return $this->success($universities_list);
     }
 }

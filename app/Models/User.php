@@ -7,12 +7,12 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Ramsey\Uuid\Uuid;
+use Illuminate\Support\Str;
 
 class User extends Authenticatable implements JWTSubject
 {
     use Notifiable;
-    use softDeletes;
+    use SoftDeletes;
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
@@ -40,7 +40,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $fillable = [
-        'name', 'email', 'password', 'phone', 'picture', 'description',
+        'phone', 'description', 'birth_date', 'birth_year', 'provider', 'provider_id'
     ];
 
     /**
@@ -49,7 +49,7 @@ class User extends Authenticatable implements JWTSubject
      * @var array
      */
     protected $hidden = [
-        'password', 'remember_token',
+        'password', 'remember_token', 'deleted_at', 'deleted_by',
     ];
 
     /**
@@ -59,6 +59,9 @@ class User extends Authenticatable implements JWTSubject
      */
     protected $casts = [
         'email_verified_at' => 'datetime',
+        'birth_date' => 'date:m-d',
+        'birth_year' => 'string',
+        'blocked' => 'boolean',
     ];
 
     /**
@@ -67,6 +70,7 @@ class User extends Authenticatable implements JWTSubject
      * @var bool
      */
     public $incrementing = false;
+
 
     /**
      * The "booting" method of the model.

@@ -2,9 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Models\User;
+use App\Models\PasswordReset;
+use App\Exceptions\CustomException;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\AuthLoginRequest;
 use App\Http\Requests\AuthRegisterRequest;
@@ -12,11 +12,27 @@ use App\Http\Requests\AuthForgotPasswordRequest;
 use App\Http\Requests\AuthResetPasswordRequest;
 use App\Http\Requests\AuthChangePasswordRequest;
 use App\Http\Requests\AuthVerifyEmailRequest;
-use App\Models\User;
-use App\Helpers\Helper;
+use App\Http\Requests\AuthRefreshRequest;
+use App\Http\Requests\AuthLogoutRequest;
+use App\Http\Requests\AuthMeRequest;
+use App\Traits\EmailSenderTrait;
+use Illuminate\Http\Request;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
+
 
 class AuthController extends Controller
 {
+    use EmailSenderTrait;
+
+    /**
+     * Permits login without password 
+     *
+     * @var boolean
+     */
+    protected $withoutPassword = false;
+
     /**
      * Create a new AuthController instance.
      *
@@ -24,14 +40,13 @@ class AuthController extends Controller
      */
     public function __construct()
     {
-        $this->middleware('auth:api', ['except' => [
-            'login','register','forgotPassword','resetPassword','verifyEmail'
-        ]]);
+        $this->middleware('auth:api')->except('login','register','forgotPassword','resetPassword','verifyEmail');
     }
 
     /**
      * Get a JWT via given credentials.
-     *
+     * 
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function login(AuthLoginRequest $request)
@@ -39,12 +54,12 @@ class AuthController extends Controller
         // Validate User
         $user = User::where('email', $request->input('email'))->first();
 
-        // Get the token
+        // Get access token
         if ($user) {
 
             // Check if user has been banned
             if ($user->blocked == true) {
-                return $this->forbidden('You are temporary banned, please contact support');
+                return $this->forbiddenAccess('You are temporary banned, please contact support');
             }
 
             // Get an ovsettings value
@@ -54,19 +69,24 @@ class AuthController extends Controller
             // Check if user has validated email
             if ($email_verification) {
                 if (!$this->isEmailVerified($user, $grace_period)) {
-                    return $this->forbidden('Your email is not yet verified, check mail for verification link');
+                    return $this->forbiddenAccess('Your email is not yet verified, check your mailbox for the verification link');
                 }
             }
 
-            if (Hash::check($request->input('password'), $user->password)) {
-                $token = auth()->login($user);
+            if (Hash::check($request->input('password'), $user->password) || $this->withoutPassword) {
 
+                // Get user role
+                $roles = $user->roles->pluck('name');
+
+                // Get JWT token
+                $token = auth()->claims(['ovr' => json_encode($roles, true)])->login($user);
+
+                // Return success
                 return $this->success([
-                    'id'    => $user->id,
                     'name'  => $user->name,
                     'email' => $user->email,
                     'phone' => $user->phone,
-                    'votes' => $user->votes,
+                    'points' => $user->points,
                     'picture' => $user->picture,
                     'description' => $user->description,
                     'jwt'   => $this->respondWithToken($token),
@@ -74,33 +94,38 @@ class AuthController extends Controller
             }
         }
 
-        return $this->unauthorized('Incorrect Login details');
+        // Return Failure
+        return $this->authenticationbadRequest('Incorrect Login details');
     }
 
     /**
      * Create a new user credentials.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function register(AuthRegisterRequest $request)
     {
-        $credentials = request(['name', 'email', 'phone', 'password']);
-
         // Check if email exists
         if (User::withTrashed()->where('email', $request->input('email'))->first()) {
-            return $this->actionFailure('Email has been taken');
+            return $this->badRequest('Email has been taken');
         }
 
         // Check if a name is available 
         $name = empty($request->input('name')) ? uniqid() : $request->input('name');
 
-        if(!User::create([
-            'name' => $name,
-            'email' => $request->input('email'),
-            'phone' => $request->input('phone'),
-            'password' => Hash::make($request->input('password')),
-        ])){
-            return $this->actionFailure('Failed to save details');
+        // Fill the user model
+        $user = new User;
+        $user->fill($request->toArray());
+
+        // Additional params
+        $user->name = $name;
+        $user->email = $request->input('email');
+        $user->password = Hash::make($request->input('password'));
+
+        // Continue on success
+        if (!$user->save()) {
+            return $this->requestConflict('Failed to save details');
         }
 
         // Get an ovsettings value
@@ -108,21 +133,23 @@ class AuthController extends Controller
 
         // Check if email verification is active
         if ($email_verification) {
-            
+
             // Send an email to user containing email validation link
             $this->sendEmail(
-                $request->input('email'),
-                'email-verification',
-                $this->createEmailVerificationToken($request->input('email'))
+                $user->email,
+                config('constants.mail.verification'),
+                env('APP_URL').'/api/auth/verify?email='.$user->email.'&token='.$this->createEmailVerificationToken($user->email),
             );
         }
 
-        return $this->actionSuccess('Registration Successful');
+        // Return success
+        return $this->entityCreated($user,'Registration successful');
     }
 
     /**
      * Creates a reset user password token.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function forgotPassword(AuthForgotPasswordRequest $request)
@@ -134,16 +161,29 @@ class AuthController extends Controller
         }
 
         // Make a new token
-        $new_reset_token = uniqid();
-        $user->remember_token = Hash::make($new_reset_token);
+        $password_reset = new PasswordReset;
+        $id = Str::random(10);
+        $token = Str::random(10);
+        $password_reset->id = $id;
+        $password_reset->token = Hash::make($token);
+        $password_reset->email = $request->input('email');
 
         // Save new token
-        if (!$user->save()){
-            return $this->actionFailure('Failed to reset password');
+        if (!$password_reset->save()){
+            return $this->unavailableService('Failed to reset password');
         }
 
-        // Send an email to user
-        $this->sendEmail($user->email,'forgot-password', $new_reset_token);
+        /**
+         * Note that in order to make the search more precise and faster
+         * The id of the password reset row has been appended to the token
+         * that is being sent to the user.
+         */
+        // Send an email to user containing reset link
+        $this->sendEmail(
+            $password_reset->email,
+            config('constants.mail.reset'),
+            $request->input('reset_form_link').'?token='.$token.$id
+        );
 
         // Return success
         return $this->actionSuccess('Reset successful, please check email for link to reset password');
@@ -152,30 +192,54 @@ class AuthController extends Controller
     /**
      * Reset a user password.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function resetPassword(AuthResetPasswordRequest $request)
     {
-        // Check if email exists
+        /**
+         * Id of the password reset order is extracted from the user input using substr
+         */
+        // Check if email and id combination exists in password reset table
+        $password_reset = PasswordReset::where('email', $request->input('email'))
+        ->where('id', substr($request->input('token'),-10))
+        ->first();
+
+        if (!$password_reset) {
+            return $this->notFound('Ensure that the email belongs to you');
+        }
+
+        // Check if token matches
+        if (!Hash::check(substr($request->input('token'),0,-10), $password_reset->token)) {
+            return $this->authenticationbadRequest('Unable to reset password');
+        }
+
+        // Get an ovsettings value
+        $token_exp_time = config('ovsettings.reset_password_token_exp_time', 60);
+
+        // Check if token has expired
+        if ((time() + ($token_exp_time*60)) <  strtotime($password_reset->created_at)) {
+            return $this->forbiddenAccess('Token has expired');
+        }
+
+        // Make a new password
         $user = User::where('email', $request->input('email'))->first();
         if (!$user) {
             return $this->notFound('Ensure that the email belongs to you');
         }
-
-        if (!Hash::check($request->input('key'), $user->remember_token)) {
-            return $this->unauthorized('Unable to reset password');
-        }
-
-        // Make a new password
         $user->password = Hash::make($request->input('new_password'));
 
         // Save new password
         if (!$user->save()){
-            return $this->actionFailure('Failed to reset password');
+            return $this->unavailableService('Failed to reset password');
         }
 
-        // Send an email to user
-        $this->sendEmail($user->email,'reset-password','your password was successfully reset');
+        // Send an email to user informing about password change
+        $this->sendEmail(
+            $user->email,
+            config('constants.mail.info'),
+            'Your password was changed on '.date('Y-m-d H:i:s',time())
+        );
 
         // Return success
         return $this->actionSuccess('Reset successful, please login');
@@ -184,23 +248,22 @@ class AuthController extends Controller
     /**
      * Change a user password.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function changePassword(AuthChangePasswordRequest $request)
     {
         // Check if user exists
-        $user = User::find($request->input('id'));
+        $user = User::find(auth()->user()->id);
 
+        // Exit if user was not found
         if (!$user) {
             return $this->notFound('Unable to identify account');
         }
 
-        if ($user->id !== auth()->user()->id) {
-            return $this->unauthorized('This account does not belong to you');
-        }
-
+        // Check if old password input matches password record
         if (!Hash::check($request->input('old_password'), $user->password)) {
-            return $this->actionFailure('Old password is incorrect');
+            return $this->requestConflict('Old password is incorrect');
         }
 
         // Make a new password
@@ -208,60 +271,66 @@ class AuthController extends Controller
 
         // Save new password
         if (!$user->save()){
-            return $this->actionFailure('Failed to save password');
+            return $this->unavailableService('Failed to save password');
         }
 
         // Send an email to user informing about password change
         $this->sendEmail(
             $user->email,
-            'password-reset-info',
-            'your password was changed on '.date('Y-m-d H:i:s',time())
+            config('constants.mail.info'),
+            'Your password was changed on '.date('Y-m-d H:i:s',time())
         );
 
         // Logout user
         auth()->logout();
-        
+
         // Return success
-        return $this->actionSuccess('Reset Successful, Please Login');
+        return $this->actionSuccess('Reset successful, please login again');
     }
 
     /**
-     * Get the authenticated User.
+     * Get the authenticated user.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function me()
+    public function me(AuthMeRequest $request)
     {
+        // Return the request sender details 
         return $this->success(auth()->user());
     }
 
     /**
      * Log the user out (Invalidate the token).
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function logout()
+    public function logout(AuthLogoutRequest $request)
     {
+        // Invalidate request sender token
         auth()->logout();
 
+        // Return success
         return $this->actionSuccess('Successfully logged out');
     }
 
     /**
      * Refresh a token.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
-    public function refresh()
+    public function refresh(AuthRefreshRequest $request)
     {
+        // Return a new token to request sender and invalidate original token
         return $this->success($this->respondWithToken(auth()->refresh()));
     }
 
     /**
      * Get the token array structure.
      *
-     * @param  string $token
-     *
+     * @param string $token
      * @return \Illuminate\Http\JsonResponse
      */
     protected function respondWithToken($token)
@@ -276,38 +345,31 @@ class AuthController extends Controller
     /**
      * Validates an email verification token.
      *
-     * @param object $user
+     * @param EloquentModel $user
      * @param integer $grace_period
-     * 
      * @return boolean
      */
-    public function isEmailVerified($user=null, $grace_period=0)
+    public function isEmailVerified($user, $grace_period=0)
     {
         try {
             // Check if user is already verified
             if ($user->email_verified_at) {
-
+                
                 // Return success
                 return true;
             }
 
+            // Check if grace period is still active
             if ($grace_period != 0) {
 
                 /**
                  * Gets time in which user account was created 
                  * Adds stated grace period to time user account was created
                  * Checks if user is still within grace period
-                 * Lets user access the app and still create a verification email
+                 * Lets user access the app.
                  */
                 $grace_period = strtotime($user->created_at) + ($grace_period*60);
                 if ($grace_period > time()) {
-
-                    // Send an email to user containing email validation link
-                    $this->sendEmail(
-                        $user->email,
-                        'email-verification',
-                        $this->createEmailVerificationToken($user->email)
-                    );
 
                     // Return success
                     return true;
@@ -317,8 +379,8 @@ class AuthController extends Controller
             // Send an email to user containing email validation link
             $this->sendEmail(
                 $user->email,
-                'email-verification',
-                $this->createEmailVerificationToken($user->email)
+                config('constants.mail.verification'),
+                env('APP_URL').'/api/auth/verify?email='.$user->email.'&token='.$this->createEmailVerificationToken($user->email),
             );
 
             // Return failure
@@ -335,21 +397,21 @@ class AuthController extends Controller
      * Creates an email verification token.
      *
      * @param string $email
-     * 
      * @return boolean false
      * @return string
      */
     public function createEmailVerificationToken($email)
     {
         // Get an ovsettings value
-        $token_key = config('ovsettings.email_verification_token_key', false);
+        $token_key = config('ovsettings.email_verification_token', false);
 
-        function tokenMaker($token_key, $email){
+        // Check if key exists and is more than 32 characters
+        if (!$token_key || strlen($token_key)<32) {
+            throw new CustomException("Error, OV_EMAIL_TOKEN is not set. Run artisan ovkey:generate command");
+        }
 
-            // Check if key exists and is more than 32 characters
-            if (!$token_key || strlen($token_key)<32) {
-                yield false;
-            }
+        // Create token generator
+        $token_maker = function ($token_key, $email){
 
             // Make a new token
             try {
@@ -374,18 +436,16 @@ class AuthController extends Controller
                 // Hash the string
                 $token = md5($token);
 
-                // Yield results
-                yield $token;
+                // Return results
+                return $token;
 
             } catch (\Throwable $th) {
-                yield false;
+                return false;
             }
-        }
+        };
 
-        // Run tokenMaker generator
-        foreach (tokenMaker($token_key, $email) as $key) {
-            $token = $key;
-        }
+        // Run token generator
+        $token = $token_maker($token_key, $email);
 
         // Return success
         if (strlen($token) == 32 && ctype_xdigit($token)) {
@@ -399,6 +459,7 @@ class AuthController extends Controller
     /**
      * Verify a user email.
      *
+     * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function verifyEmail(AuthVerifyEmailRequest $request)
@@ -414,40 +475,31 @@ class AuthController extends Controller
 
         // Compare token
         if ($token !== $request->input('token')) {
-            return $this->actionFailure('Currently unable to validate email');
+            return $this->requestConflict('Currently unable to validate email');
         }
 
-        // Time stamp validation
+        // Additional params
         $user->email_verified_at = date('Y-m-d H:i:s', time());
-        if (!$user->save()) {
-            return $this->failure('Currently unable to properly validate email');
-        }
 
         // Return success
-        return $this->actionSuccess('Successfully validated email');
+        if ($user->save()) {
+            // return $this->actionSuccess('Successfully validated email');
+            return view('notifications.email_verification')->with('status','success');
+        } else {
+            // return $this->requestConflict('Currently unable to properly validate email');
+            return view('notifications.email_verification')->with('status','failure');
+        }
     }
 
     /**
-     * Prepares an email with verification token to be sent.
-     *
-     * @param string $email
-     * @param string $topic
-     * @param string $message
-     *
-     * @return boolean
+     * Enable login without password
+     * 
+     * @param void
+     * @return object
      */
-    public function sendEmail($email, $topic, $message=null)
+    public function withoutPassword()
     {
-        // Email parameters
-        if (!$email || !$topic) {
-            return false;
-        }
-
-        // Send an email to user containing the appropriate email subject
-        // Place email sender function here
-        Helper::sendSimpleMail($email.' '.$topic.' '.$message);
-
-        // Return success
-        return true;
+        $this->withoutPassword = true;
+        return $this;
     }
 }

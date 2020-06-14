@@ -25,6 +25,7 @@ class AuthForgotPasswordRequest extends FormRequest
     {
         return [
             'email' => 'required|email|max:100',
+            'reset_form_link' => 'required|string',
         ];
     }
 
@@ -39,6 +40,8 @@ class AuthForgotPasswordRequest extends FormRequest
             'email.required' => 'An email is required',
             'email.max' => 'An email can not have more than 100 characters',
             'email.email'  => 'Email is not valid',
+            'reset_form_link.required' => 'A link to the reset form is required',
+            'reset_form_link.string' => 'Reset form link is not valid',
         ];
     }
 }

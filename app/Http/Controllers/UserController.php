@@ -77,7 +77,7 @@ class UserController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for users');
+            return $this->requestConflict('Currently unable to search for users');
         }
     }
 
@@ -91,7 +91,7 @@ class UserController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Check user id
@@ -103,7 +103,7 @@ class UserController extends Controller
         // Block user
         $user->blocked = (boolean) true;
         if (!$user->save()) {
-            return $this->actionFailure('Currently unable to block / ban user');
+            return $this->requestConflict('Currently unable to block / ban user');
         }
 
         // return success
@@ -120,7 +120,7 @@ class UserController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Check user id
@@ -132,7 +132,7 @@ class UserController extends Controller
         // Unblock user
         $user->blocked = (boolean) false;
         if (!$user->save()) {
-            return $this->actionFailure('Currently unable to unblock / un-ban user');
+            return $this->requestConflict('Currently unable to unblock / un-ban user');
         }
 
         // return success
@@ -203,7 +203,7 @@ class UserController extends Controller
 
             // Validate user owner
             if ($user->id !== auth()->user()->id) {
-                return $this->unauthorized('The profile does not belong to you');
+                return $this->authenticationFailure('The profile does not belong to you');
             }
 
             // Check if photo was submitted 
@@ -212,7 +212,7 @@ class UserController extends Controller
                 // Store new images to server or cloud
                 $processed_images = Helper::batchStoreImages($request->file('photos'), 'public/profile', $user->id, $this->NO_ALLOWED_UPLOADS);
                 if (!$processed_images) {
-                    return $this->actionFailure('Currently unable to update image');
+                    return $this->requestConflict('Currently unable to update image');
                 }
 
                 // Remove previously stored image from server or cloud
@@ -224,7 +224,7 @@ class UserController extends Controller
                 //     // remove previous user image
                 //     $removed_images = Helper::batchUnstoreImages($image);
                 //     if (!$removed_images) {
-                //         return $this->actionFailure('Currently unable to update image');
+                //         return $this->requestConflict('Currently unable to update image');
                 //     }
                 // }
 
@@ -239,7 +239,7 @@ class UserController extends Controller
             if ($user->save()) {
                 return $this->actionSuccess('Profile was updated');
             } else {
-                return $this->actionFailure('Currently unable to update profile');
+                return $this->requestConflict('Currently unable to update profile');
             }
 
         } else {
@@ -257,7 +257,7 @@ class UserController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         $user = User::find($request->input('id'));
@@ -265,7 +265,7 @@ class UserController extends Controller
             if ($user->delete()) {
                 return $this->actionSuccess('User was deleted');
             } else {
-                return $this->actionFailure('Currently unable to delete user');
+                return $this->requestConflict('Currently unable to delete user');
             }
 
         } else {
@@ -283,7 +283,7 @@ class UserController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Gets all the users in the array by id
@@ -301,7 +301,7 @@ class UserController extends Controller
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted User(s) deleted");
             } else {
-                return $this->actionFailure('Currently unable to delete user(s)');
+                return $this->requestConflict('Currently unable to delete user(s)');
             }
 
         } else {
@@ -319,7 +319,7 @@ class UserController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         $user = User::onlyTrashed()->find($request->input('id'));
@@ -328,7 +328,7 @@ class UserController extends Controller
             if ($user->restore()) {
                 return $this->actionSuccess('User was restored');
             } else {
-                return $this->actionFailure('Currently unable to restore user');
+                return $this->requestConflict('Currently unable to restore user');
             }
 
         } else {
@@ -346,7 +346,7 @@ class UserController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Gets all the users in the array by id
@@ -367,7 +367,7 @@ class UserController extends Controller
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored User(s) restored");
             } else {
-                return $this->actionFailure('Currently unable to restore User(s)');
+                return $this->requestConflict('Currently unable to restore User(s)');
             }
 
         } else {
@@ -385,7 +385,7 @@ class UserController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Find the user
@@ -395,7 +395,7 @@ class UserController extends Controller
             if ($user->forceDelete()) {
                 return $this->actionSuccess('User was deleted');
             } else {
-                return $this->actionFailure('Currently unable to delete user');
+                return $this->requestConflict('Currently unable to delete user');
             }
 
         } else {
@@ -413,7 +413,7 @@ class UserController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Gets all the users in the array by id
@@ -431,7 +431,7 @@ class UserController extends Controller
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted User(s) deleted");
             } else {
-                return $this->actionFailure('Currently unable to delete user(s)');
+                return $this->requestConflict('Currently unable to delete user(s)');
             }
 
         } else {

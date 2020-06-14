@@ -25,8 +25,8 @@ class AuthResetPasswordRequest extends FormRequest
     {
         return [
             'email' => 'required|email|max:100',
-            'key' => 'required',
-            'new_password' => 'required|confirmed',
+            'token' => 'required',
+            'new_password' => 'required|min:6|max:24|confirmed',
             'new_password_confirmation' => 'required|same:new_password',
         ];
     }
@@ -42,10 +42,10 @@ class AuthResetPasswordRequest extends FormRequest
             'email.required' => 'An email is required',
             'email.max' => 'An email can not have more than 100 characters',
             'email.email'  => 'Email is not valid',
-
-            'key.required'  => 'A reset key is required',
-
+            'token.required'  => 'A reset token is required',
             'new_password.required'  => 'A new password is required',
+            'new_password.min'  => 'Password must have a minimum of 6 characters',
+            'new_password.max'  => 'Password must have a maximum of 24 characters',
             'new_password.confirmed'  => 'A new password confirmation is required',
             'new_password_confirmation.required'  => 'A new password confirmation is required',
             'new_password_confirmation.same'  => 'Passwords do not match',

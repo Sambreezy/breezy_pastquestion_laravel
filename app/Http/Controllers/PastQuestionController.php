@@ -97,7 +97,7 @@ class PastQuestionController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for past questions');
+            return $this->requestConflict('Currently unable to search for past questions');
         }
     }
 
@@ -161,7 +161,7 @@ class PastQuestionController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for past questions');
+            return $this->requestConflict('Currently unable to search for past questions');
         }
     }
 
@@ -201,7 +201,7 @@ class PastQuestionController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for past questions');
+            return $this->requestConflict('Currently unable to search for past questions');
         }
     }
 
@@ -237,7 +237,7 @@ class PastQuestionController extends Controller
             }
 
         } else {
-            return $this->actionFailure('Currently unable to search for past questions');
+            return $this->requestConflict('Currently unable to search for past questions');
         }
     }
 
@@ -269,7 +269,7 @@ class PastQuestionController extends Controller
 
         // Save past question details
         if (!$past_question->save()) {
-            return $this->actionFailure('Currently unable to save past question');
+            return $this->requestConflict('Currently unable to save past question');
         }
 
         // Check if photos were submitted 
@@ -291,7 +291,7 @@ class PastQuestionController extends Controller
 
             // Save past question images
             if (!$processed_images || !Image::insert($processed_images)) {
-                return $this->actionFailure('Currently unable to save images');
+                return $this->requestConflict('Currently unable to save images');
             }
         }
 
@@ -313,7 +313,7 @@ class PastQuestionController extends Controller
 
             // Save past question documents
             if (!$processed_docs || !Document::insert($processed_docs)) {
-                return $this->actionFailure('Currently unable to save documents');
+                return $this->requestConflict('Currently unable to save documents');
             }
         }
 
@@ -367,7 +367,7 @@ class PastQuestionController extends Controller
             
             // Validate past question owner
             if ($past_question->uploaded_by !== auth()->user()->id) {
-                return $this->unauthorized('This past question was not uploaded by you');
+                return $this->authenticationFailure('This past question was not uploaded by you');
             }
 
             $new_request = $request->except(['id','user_id', 'uploaded_by']);
@@ -375,7 +375,7 @@ class PastQuestionController extends Controller
 
             // Save past question details
             if (!$past_question->save()) {
-                return $this->actionFailure('Currently unable to update past question');
+                return $this->requestConflict('Currently unable to update past question');
             }
 
             // Check if photos were submitted 
@@ -405,23 +405,23 @@ class PastQuestionController extends Controller
 
                         // Save past question images
                         if (!$processed_images || !Image::insert($processed_images)) {
-                            return $this->actionFailure('Currently unable to save images');
+                            return $this->requestConflict('Currently unable to save images');
                         }
 
                         // Remove previously stored images from server or cloud
                         if (config('ovsettings.image_permanent_delete')) {
                             $removed_image = BatchMediaProcessors::batchUnStoreFiles($past_question->image);
                             if (!$removed_image) {
-                                return $this->actionFailure('Currently unable to remove old images');
+                                return $this->requestConflict('Currently unable to remove old images');
                             }
                         }
 
                     } else {
-                        return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' images are allowed');
+                        return $this->forbiddenAccess('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' images are allowed');
                     }
 
                 } else {
-                    return $this->actionFailure('Currently unable to process image records');
+                    return $this->requestConflict('Currently unable to process image records');
                 }
             }
 
@@ -452,22 +452,22 @@ class PastQuestionController extends Controller
 
                         // Save past question documents
                         if (!$processed_docs || !Document::insert($processed_docs)) {
-                            return $this->actionFailure('Currently unable to save documents');
+                            return $this->requestConflict('Currently unable to save documents');
                         }
 
                         // Remove previously stored document from server or cloud
                         if (config('ovsettings.document_permanent_delete')) {
                             $removed_document = BatchMediaProcessors::batchUnStoreFiles($past_question->document);
                             if (!$removed_document) {
-                                return $this->actionFailure('Currently unable to remove old documents');
+                                return $this->requestConflict('Currently unable to remove old documents');
                             }
                         }
 
                     } else {
-                        return $this->forbidden('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' documents are allowed');
+                        return $this->forbiddenAccess('Only a maximum of '.$this->NO_ALLOWED_UPLOADS.' documents are allowed');
                     }
                 } else {
-                    return $this->actionFailure('Currently unable to process document records');
+                    return $this->requestConflict('Currently unable to process document records');
                 }
             }
 
@@ -492,13 +492,13 @@ class PastQuestionController extends Controller
         if ($past_question) {  
 
             if ($past_question->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
-                return $this->unauthorized('This past question was not uploaded by you');
+                return $this->authenticationFailure('This past question was not uploaded by you');
             }
 
             if ($past_question->delete()) {
                 return $this->actionSuccess('Past question was deleted');
             } else {
-                return $this->actionFailure('Currently unable to delete past question');
+                return $this->requestConflict('Currently unable to delete past question');
             }
 
         } else {
@@ -531,7 +531,7 @@ class PastQuestionController extends Controller
             if (($deleted = count($filtered)) > 0) {
                 return $this->actionSuccess("$deleted Past question(s) deleted");
             } else {
-                return $this->actionFailure('Currently unable to delete past question(s)');
+                return $this->requestConflict('Currently unable to delete past question(s)');
             }
 
         } else {
@@ -552,13 +552,13 @@ class PastQuestionController extends Controller
         if ($past_question) {  
             
             if ($past_question->uploaded_by !== auth()->user()->id || $this->USER_LEVEL_3 !== auth()->user()->rank) {
-                return $this->unauthorized('This past question was not uploaded by you');
+                return $this->authenticationFailure('This past question was not uploaded by you');
             }
 
             if ($past_question->restore()) {
                 return $this->actionSuccess('Past question was restored');
             } else {
-                return $this->actionFailure('Currently unable to restore past question');
+                return $this->requestConflict('Currently unable to restore past question');
             }
 
         } else {
@@ -594,7 +594,7 @@ class PastQuestionController extends Controller
             if (($restored = count($filtered)) > 0) {
                 return $this->actionSuccess("$restored Past question(s) restored");
             } else {
-                return $this->actionFailure('Currently unable to restore past question(s)');
+                return $this->requestConflict('Currently unable to restore past question(s)');
             }
 
         } else {
@@ -612,7 +612,7 @@ class PastQuestionController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Find the past question.
@@ -636,7 +636,7 @@ class PastQuestionController extends Controller
                 return $this->actionSuccess("Past question was deleted with $removed_images image file(s) and $removed_documents document File(s) removed");
 
             } else {
-                return $this->actionFailure('Currently unable to delete past question');
+                return $this->requestConflict('Currently unable to delete past question');
             }
 
         } else {
@@ -654,7 +654,7 @@ class PastQuestionController extends Controller
     {
         // Check access level
         if ($this->USER_LEVEL_3 !== auth()->user()->rank) {
-            return $this->unauthorized('Please contact management');
+            return $this->authenticationFailure('Please contact management');
         }
 
         // Gets all the past questions in the array by id
@@ -694,7 +694,7 @@ class PastQuestionController extends Controller
 
                 return $this->actionSuccess("$deleted Past question(s) deleted with $removed_images image file(s) and $removed_documents document File(s) removed");
             } else {
-                return $this->actionFailure('Currently unable to delete past question(s)');
+                return $this->requestConflict('Currently unable to delete past question(s)');
             }
 
         } else {
