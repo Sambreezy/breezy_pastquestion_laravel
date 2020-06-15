@@ -75,18 +75,17 @@ class AuthController extends Controller
 
             if (Hash::check($request->input('password'), $user->password) || $this->withoutPassword) {
 
-                // Get user role
-                $roles = $user->roles->pluck('name');
 
                 // Get JWT token
-                $token = auth()->claims(['ovr' => json_encode($roles, true)])->login($user);
+                $token = auth()->login($user);
 
                 // Return success
                 return $this->success([
+                    'id'    => $user->id,
                     'name'  => $user->name,
                     'email' => $user->email,
                     'phone' => $user->phone,
-                    'points' => $user->points,
+                    'votes' => $user->votes,
                     'picture' => $user->picture,
                     'description' => $user->description,
                     'jwt'   => $this->respondWithToken($token),
@@ -95,7 +94,7 @@ class AuthController extends Controller
         }
 
         // Return Failure
-        return $this->authenticationbadRequest('Incorrect Login details');
+        return $this->authenticationFailure('Incorrect Login details');
     }
 
     /**
@@ -211,7 +210,7 @@ class AuthController extends Controller
 
         // Check if token matches
         if (!Hash::check(substr($request->input('token'),0,-10), $password_reset->token)) {
-            return $this->authenticationbadRequest('Unable to reset password');
+            return $this->authenticationFailure('Unable to reset password');
         }
 
         // Get an ovsettings value
