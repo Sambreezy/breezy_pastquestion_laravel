@@ -4,21 +4,31 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Laravel CORS
+    | Cross-Origin Resource Sharing (CORS) Configuration
     |--------------------------------------------------------------------------
     |
-    | allowedOrigins, allowedHeaders and allowedMethods can be set to array('*')
-    | to accept any value.
+    | Here you may configure your settings for cross-origin resource sharing
+    | or "CORS". This determines what cross-origin operations may execute
+    | in web browsers. You are free to adjust these settings as needed.
     |
-    | Important : origin access should be restricted after test mode.
+    | To learn more: https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS
+    |
     */
-   
-    'supportsCredentials' => false,
-    'allowedOrigins' => ['*'], // ex: www.example.com
-    'allowedOriginsPatterns' => [],
-    'allowedHeaders' => ['*'], // ex: ['Content-Type', 'X-Requested-With'],
-    'allowedMethods' => ['GET','POST','delete'], // ex: ['GET', 'POST', 'PUT',  'DELETE']
-    'exposedHeaders' => [],
-    'maxAge' => 0,
+
+    'paths' => ['api/*'],
+
+    'allowed_methods' => ['*'],
+
+    'allowed_origins' => ['*'],
+
+    'allowed_origins_patterns' => [],
+
+    'allowed_headers' => ['*'],
+
+    'exposed_headers' => false,
+
+    'max_age' => false,
+
+    'supports_credentials' => false,
 
 ];
