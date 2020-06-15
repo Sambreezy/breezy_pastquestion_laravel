@@ -1,0 +1,3823 @@
+{
+	"info": {
+		"_postman_id": "8b9a6051-0c01-4d8e-820a-da9c2fea1f2a",
+		"name": "QPast Platform",
+		"description": "This platform is designed for uploading past questions",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "name",
+									"value": "black",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "black@gmail.com",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "password",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "password_confirmation",
+									"value": "password",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "08021415578",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "description",
+									"value": "I am a human being",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "birth_date",
+									"value": "0000-04-17",
+									"description": "Optional (0000-month-date)  (0000-m-d)",
+									"type": "text"
+								},
+								{
+									"key": "birth_year",
+									"value": "1997",
+									"description": "Optional (year) (Y)",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/register",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"register"
+							]
+						},
+						"description": "Register a new user"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "blue@gmail.com",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "password",
+									"value": "blueblue",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/login",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"login"
+							]
+						},
+						"description": "Log a user in"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"event": [
+						{
+							"listen": "prerequest",
+							"script": {
+								"id": "ca95edff-5328-4ce2-bdb4-f58ab0742173",
+								"exec": [
+									"pm.environment.set(\"access_expires\", \"\");"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/logout",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"logout"
+							]
+						},
+						"description": "Log a user out"
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "black@gmail.com",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "reset_form_link",
+									"value": "http://{{url}}/api/reset-link",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/forgot",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"forgot"
+							]
+						},
+						"description": "Reset a user's password phase 1, this send's a password reset token and form with link to user."
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "email",
+									"value": "black@gmail.com",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "token",
+									"value": "lQf5xwqSmxSIyT22OVfe",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "new_password",
+									"value": "thisisanewpassword",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "new_password_confirmation",
+									"value": "thisisanewpassword",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/reset",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"reset"
+							]
+						},
+						"description": "Reset a user's password phase 2, this accepts a password reset token and new password from user."
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "old_password",
+									"value": "blueblue",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "new_password",
+									"value": "thisisanewpassword",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "new_password_confirmation",
+									"value": "thisisanewpassword",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/change",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"change"
+							]
+						},
+						"description": "Change a user's password"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify User Email",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/verify?email=blue@gmail.com&token=9b3b7bb4453551002f948e9899d28d12",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"verify"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "blue@gmail.com",
+									"description": "Required"
+								},
+								{
+									"key": "token",
+									"value": "9b3b7bb4453551002f948e9899d28d12",
+									"description": "Required"
+								}
+							]
+						},
+						"description": "Submit token send to users email to verify users email"
+					},
+					"response": []
+				},
+				{
+					"name": "Check User Details",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/me",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"me"
+							]
+						},
+						"description": "Check if a user is logged in"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "formdata",
+							"formdata": []
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/refresh",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"refresh"
+							]
+						},
+						"description": "Get a new token for logged in user"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Auth Model",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/test",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"test"
+							]
+						},
+						"description": "Test if the auth model is responsive"
+					},
+					"response": []
+				}
+			],
+			"description": "Application Authorization",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "3d200045-0eb1-4771-81d0-0d73c54c12d6",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "b69b8b8a-8801-4b0e-a604-79ad6ceadc14",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Socialite",
+			"item": [
+				{
+					"name": "Login Via Facebook",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/socialite/facebook",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"socialite",
+								"facebook"
+							]
+						},
+						"description": "login to the application via facebook"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Via Facebook Callback",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/socialite/facebook/callback?code=AQDwb9jAHITb5R_Gvk4Rx1hg9EFJ0sVDR8VHkLgFuOLKJebOi03mLGr3xOk7UL-_gbnpuW-UB4zalhHXuvi_S_f_1Mcs-2eekVl3VCjmiScESn4bhGZcmelTHhcIt7MLyLcl9hSyH3f-70B7oPYdw1kWZYyHWP8TBQoYt1qvWPU5PACHPlBocG9daxa7lJ2EeY8tkzpzvhjYsc02ScIIYSBWLenYrYyyOxwEysr1VsHLNKvZDa479T5wg7pxTlbY1vRy5Ugsz0AxCez4y3I_kXwlQ2PjV9G0nNVVMJSinOU6i1QaE2iv5h8I3OCrQp2ZEuFLxHU0CEz3p7ilEONP9D5c%23_=_",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"socialite",
+								"facebook",
+								"callback"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "AQDwb9jAHITb5R_Gvk4Rx1hg9EFJ0sVDR8VHkLgFuOLKJebOi03mLGr3xOk7UL-_gbnpuW-UB4zalhHXuvi_S_f_1Mcs-2eekVl3VCjmiScESn4bhGZcmelTHhcIt7MLyLcl9hSyH3f-70B7oPYdw1kWZYyHWP8TBQoYt1qvWPU5PACHPlBocG9daxa7lJ2EeY8tkzpzvhjYsc02ScIIYSBWLenYrYyyOxwEysr1VsHLNKvZDa479T5wg7pxTlbY1vRy5Ugsz0AxCez4y3I_kXwlQ2PjV9G0nNVVMJSinOU6i1QaE2iv5h8I3OCrQp2ZEuFLxHU0CEz3p7ilEONP9D5c%23_=_",
+									"description": "Required"
+								}
+							]
+						},
+						"description": "login to the application via facebook, if you have the authorization token. mostly for SDK's"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Via Linkedin",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/socialite/linkedin",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"socialite",
+								"linkedin"
+							]
+						},
+						"description": "login to the application via linkedin"
+					},
+					"response": []
+				},
+				{
+					"name": "Login Via Linkedin Callback",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/socialite/linkedin/callback?code=AQBZEHLEcV97FuU-U6Fimyh7f7okfE2oLVA-9si55CQbwq-g2vWWtn9aiN7YbxV8kJeiw0ZkEpmjBtW-RVLB_QFfJNct4B6FE42CJfHMQ-CqAzQRKxjK8qvfQbyGpKvRWt3mVcE6c3G7Lm6uKK8YwUEkEN4fIbByU1mZO8Zo3imvjMuTHg9wYw-3cLX91x_zorY-FzGPD5ApRRLRQCo3bdt0d9HurTmSWWRBTF751KiiYVg_cjLBCHertNhhUKzY-8R8MV773do_G9pCM6kB72o3ciFmu0brztYMJ0ln5ZhTm2cTe5H5MY8ZJRv_Hdvu6n6hYha6BtmzXtI9roVF4gjw%23_=_",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"socialite",
+								"linkedin",
+								"callback"
+							],
+							"query": [
+								{
+									"key": "code",
+									"value": "AQBZEHLEcV97FuU-U6Fimyh7f7okfE2oLVA-9si55CQbwq-g2vWWtn9aiN7YbxV8kJeiw0ZkEpmjBtW-RVLB_QFfJNct4B6FE42CJfHMQ-CqAzQRKxjK8qvfQbyGpKvRWt3mVcE6c3G7Lm6uKK8YwUEkEN4fIbByU1mZO8Zo3imvjMuTHg9wYw-3cLX91x_zorY-FzGPD5ApRRLRQCo3bdt0d9HurTmSWWRBTF751KiiYVg_cjLBCHertNhhUKzY-8R8MV773do_G9pCM6kB72o3ciFmu0brztYMJ0ln5ZhTm2cTe5H5MY8ZJRv_Hdvu6n6hYha6BtmzXtI9roVF4gjw%23_=_",
+									"description": "Required"
+								}
+							]
+						},
+						"description": "login to the application via linkedin, if you have the authorization token. mostly for SDK's"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Socialite Model",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/auth/socialite/test",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"auth",
+								"socialite",
+								"test"
+							]
+						},
+						"description": "Test if the socialite model is responsive"
+					},
+					"response": []
+				}
+			],
+			"description": "Login with third party providers such as facebook, linkedin and github etc",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "9b647350-f6f2-4559-af00-5c8e238aa637",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "032385cb-f51c-473e-91a4-5e20a2448173",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "General",
+			"item": [
+				{
+					"name": "Clear Universities From Cache",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/general/universities/clear",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"general",
+								"universities",
+								"clear"
+							]
+						},
+						"description": "Clear all universities avaliable in application cache list"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Last Ten Uploaded Past Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/general/index",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"general",
+								"index"
+							]
+						},
+						"description": "Get last ten uploaded past questions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All Universities",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/general/universities/show",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"general",
+								"universities",
+								"show"
+							]
+						},
+						"description": "Get all universities avaliable in application list"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Api General Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/general/test",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"general",
+								"test"
+							]
+						},
+						"description": "This retruns a messsage"
+					},
+					"response": []
+				},
+				{
+					"name": "Contact Us",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "name",
+									"value": "blue",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "email",
+									"value": "blue@gmail.com",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "message",
+									"value": "This is very a good web app.",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/general/contactus",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"general",
+								"contactus"
+							]
+						},
+						"description": "Leave a message for the administrators"
+					},
+					"response": []
+				}
+			],
+			"description": "General routes",
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Users",
+			"item": [
+				{
+					"name": "Get All Users",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/index?properties=true",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"index"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts only 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional"
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all registered users (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Show User",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/show?id=8a24ab6b-25bb-419b-ad9f-c356e403d550",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"show"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "8a24ab6b-25bb-419b-ad9f-c356e403d550",
+									"description": "Required"
+								}
+							]
+						},
+						"description": "Show a specific user with his uploaded past questions"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit A User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "8a24ab6b-25bb-419b-ad9f-c356e403d550",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "name",
+									"value": "changed name",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "phone",
+									"value": "",
+									"description": "Optional",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "description",
+									"value": "",
+									"description": "Optional",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "photos[]",
+									"description": "Accepts Only 'jpg','jpeg','png','gif','bmp'  ( Optional)",
+									"type": "file",
+									"src": [],
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/edit",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"edit"
+							]
+						},
+						"description": "Edit a user submitted details"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete A User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/delete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"delete"
+							]
+						},
+						"description": "Delete a registered user (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "users[]",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/batchdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"batchdelete"
+							]
+						},
+						"description": "Delete multiple registered user's (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Restore A User",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/restore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"restore"
+							]
+						},
+						"description": "Restore a deleted user (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Restore Users",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "users[]",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/batchrestore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"batchrestore"
+							]
+						},
+						"description": "Restore multiple deleted users (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Permanently Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "d108e13e-a31b-4f34-b82a-f0849b49ac45",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/permanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"permanentdelete"
+							]
+						},
+						"description": "Permanently delete a user (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Permanently  Delete User",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "users[]",
+									"value": "cb846308-03c9-483e-b997-0999db2d6b5e",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/batchpermanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"batchpermanentdelete"
+							]
+						},
+						"description": "Permanently delete user's (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Api User Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/user/test",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"user",
+								"test"
+							]
+						},
+						"description": "This retruns a messsage"
+					},
+					"response": []
+				}
+			],
+			"description": "Images routes",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "858fed6b-153f-4ef9-9bf3-46dfea762e4a",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "dad53667-1951-49d3-af1c-5d621273ee0f",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Past Questions",
+			"item": [
+				{
+					"name": "Get All Past Questions",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/index?properties=true",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"index"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts only 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional"
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all past questions"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All User Uploaded Past Question",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/personal?properties=true",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"personal"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional"
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all past questions uploaded by user"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload A Past Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "department",
+									"value": "Mathematics",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "course_name",
+									"value": "Applied Mathematics III",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "course_code",
+									"value": "MTH132",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "semester",
+									"value": "Second",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "year",
+									"value": "2011",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "photos[]",
+									"description": "Accepts Only 'jpg','jpeg','png','gif','bmp'",
+									"type": "file",
+									"src": "/Users/orion/Downloads/Web Images/supermario.jpeg"
+								},
+								{
+									"key": "docs[]",
+									"description": "Accepts Only 'doc','docx','pdf','txt','rtf'",
+									"type": "file",
+									"src": "/Users/orion/Desktop/Untitled.txt"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/create",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"create"
+							]
+						},
+						"description": "Save user uploaded past question "
+					},
+					"response": []
+				},
+				{
+					"name": "Show Past Question",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/show?id=3d62e329-2be9-4fd9-8169-68d1a0b0e1be",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"show"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "3d62e329-2be9-4fd9-8169-68d1a0b0e1be",
+									"description": "Required"
+								}
+							]
+						},
+						"description": "Show a specific past question"
+					},
+					"response": []
+				},
+				{
+					"name": "Multi Search Past Questions",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "department",
+									"value": "",
+									"description": "Optional ",
+									"type": "text"
+								},
+								{
+									"key": "course_name",
+									"value": "",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "course_code",
+									"value": "",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "semester",
+									"value": "Second",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "year",
+									"value": "",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "status",
+									"value": "1",
+									"description": "Accepts only 1 or 0 also optional",
+									"type": "text"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Optional",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/multisearch",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"multisearch"
+							]
+						},
+						"description": "Search for past questions with multiple parameters"
+					},
+					"response": []
+				},
+				{
+					"name": "Single Search Past Questions",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/singlesearch?search=first&page=1&status=1",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"singlesearch"
+							],
+							"query": [
+								{
+									"key": "search",
+									"value": "first",
+									"description": "Optional"
+								},
+								{
+									"key": "page",
+									"value": "1",
+									"description": "Optional"
+								},
+								{
+									"key": "status",
+									"value": "1",
+									"description": "Accepts only 1 or 0 also optional"
+								}
+							]
+						},
+						"description": "Search for a past question with out specificity"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit A Past Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "3d62e329-2be9-4fd9-8169-68d1a0b0e1be",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "department",
+									"value": "Computer Science",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "course_name",
+									"value": "Basic Computer 101",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "course_code",
+									"value": "GSP101",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "semester",
+									"value": "second",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "year",
+									"value": "2017",
+									"description": "Optional",
+									"type": "text"
+								},
+								{
+									"key": "photos[]",
+									"description": "Accepts Only 'jpg','jpeg','png','gif','bmp'",
+									"type": "file",
+									"src": []
+								},
+								{
+									"key": "docs[]",
+									"description": "Accepts Only 'doc','docx','pdf','txt','rtf'",
+									"type": "file",
+									"src": []
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/edit",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"edit"
+							]
+						},
+						"description": "Edit a user submitted past question"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Past Question",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "d108e13e-a31b-4f34-b82a-f0849b49ac45",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/delete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"delete"
+							]
+						},
+						"description": "Delete a user uploaded past question"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Delete Past Question",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "past_questions[]",
+									"value": "d108e13e-a31b-4f34-b82a-f0849b49ac45",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/batchdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"batchdelete"
+							]
+						},
+						"description": "Delete user's multiple uploaded past questions"
+					},
+					"response": []
+				},
+				{
+					"name": "Restore A Past Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "d108e13e-a31b-4f34-b82a-f0849b49ac45",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/restore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"restore"
+							]
+						},
+						"description": "Restore a user deleted past question"
+					},
+					"response": []
+				},
+				{
+					"name": "Restore A Past Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "past_questions[]",
+									"value": "d108e13e-a31b-4f34-b82a-f0849b49ac45",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/batchrestore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"batchrestore"
+							]
+						},
+						"description": "Restore user's multiple deleted past questions"
+					},
+					"response": []
+				},
+				{
+					"name": "Permanently Delete Past Question",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "d108e13e-a31b-4f34-b82a-f0849b49ac45",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/permanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"permanentdelete"
+							]
+						},
+						"description": "Permanently delete a user uploaded past question (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Permanently  Delete Past Question",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "past_questions[]",
+									"value": "2e09e71f-da15-4cd5-80c0-438b0d646b30",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "past_questions[]",
+									"value": "b77ba8af-5780-413c-9d46-4a670b262814",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/batchpermanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"batchpermanentdelete"
+							]
+						},
+						"description": "Permanently delete user's multiple uploaded past questions (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Api Past Question Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/pastquestion/test",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"pastquestion",
+								"test"
+							]
+						},
+						"description": "This retruns a messsage"
+					},
+					"response": []
+				}
+			],
+			"description": "Past question routes",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "0f0d693f-0d04-421e-87fb-b79ff75fbc07",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "cdb7e65c-4a60-4e25-a5e4-cf22e0133ace",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Images",
+			"item": [
+				{
+					"name": "Get All Images",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/index?properties=true",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"index"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts only 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional"
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all images"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All User Uploaded Image",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/personal",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"personal"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts only 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all images uploaded by user"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload An Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "past_question_id",
+									"value": "01476288-3106-4b3d-b5ee-9a1c02935ee1",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "photos[]",
+									"description": "Accepts Only 'jpg','jpeg','png','gif','bmp'",
+									"type": "file",
+									"src": "/C:/Users/Victor/Desktop/Office/Images - 7.21.2017/Animals/86501309__photo_a0KQ9YX_700b_jpg.JPG"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/create",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"create"
+							]
+						},
+						"description": "Save user uploaded image"
+					},
+					"response": []
+				},
+				{
+					"name": "Show Image",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/show?id=3d62e329-2be9-4fd9-8169-68d1a0b0e1be",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"show"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "3d62e329-2be9-4fd9-8169-68d1a0b0e1be",
+									"description": "Required"
+								}
+							]
+						},
+						"description": "Show a specific image"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit An Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "photos[]",
+									"description": "Accepts Only 'jpg','jpeg','png','gif','bmp'",
+									"type": "file",
+									"src": "/C:/Users/Victor/Desktop/Office/Images - 7.21.2017/Animals/86501309__photo_a7M08z2_700b_jpg.JPG"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/edit",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"edit"
+							]
+						},
+						"description": "Edit a user submitted image"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete An Image",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/delete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"delete"
+							]
+						},
+						"description": "Delete a user uploaded image"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Delete Images",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "images[]",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/batchdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"batchdelete"
+							]
+						},
+						"description": "Delete user's multiple uploaded images"
+					},
+					"response": []
+				},
+				{
+					"name": "Restore An Image",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/restore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"restore"
+							]
+						},
+						"description": "Restore a user deleted image"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Restore Images",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "images[]",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/batchrestore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"batchrestore"
+							]
+						},
+						"description": "Restore user's multiple deleted images"
+					},
+					"response": []
+				},
+				{
+					"name": "Permanently Delete An Image",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "d108e13e-a31b-4f34-b82a-f0849b49ac45",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/permanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"permanentdelete"
+							]
+						},
+						"description": "Permanently delete a user uploaded image (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Permanently Delete Images",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "images[]",
+									"value": "0d43c982-f646-48cd-8dac-8922625ffe24",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/batchpermanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"batchpermanentdelete"
+							]
+						},
+						"description": "Permanently delete user's multiple uploaded images (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Api Image Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/image/test",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"image",
+								"test"
+							]
+						},
+						"description": "This retruns a messsage"
+					},
+					"response": []
+				}
+			],
+			"description": "Images routes",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "b10b7c74-4f3d-4370-85e9-78c8bea0ce07",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "d9e1e9d0-3768-4fc0-ad87-1bfdf5d8837e",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Documents",
+			"item": [
+				{
+					"name": "Get All Documents",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/index?properties=true",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"index"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts only 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional"
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all documents"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All User Uploaded Documents",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/personal?properties=true",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"personal"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts only 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional"
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all documents uploaded by user"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload A Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "past_question_id",
+									"value": "01476288-3106-4b3d-b5ee-9a1c02935ee1",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "docs[]",
+									"description": "Accepts Only 'doc','docx','pdf','txt','rtf'",
+									"type": "file",
+									"src": "/C:/Users/Victor/Desktop/Git.txt"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/create",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"create"
+							]
+						},
+						"description": "Save user uploaded Document"
+					},
+					"response": []
+				},
+				{
+					"name": "Show Document",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/show?id=3d62e329-2be9-4fd9-8169-68d1a0b0e1be",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"show"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "3d62e329-2be9-4fd9-8169-68d1a0b0e1be",
+									"description": "Required"
+								}
+							]
+						},
+						"description": "Show a specific document"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit A Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "04b71c46-7efa-491c-ada9-aa539f9931a4",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "docs[]",
+									"description": "Accepts Only 'doc','docx','pdf','txt','rtf'",
+									"type": "file",
+									"src": "/C:/Users/Victor/Desktop/Git.txt"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/edit",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"edit"
+							]
+						},
+						"description": "Edit a user submitted document"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete A Document",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "04b71c46-7efa-491c-ada9-aa539f9931a4",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/delete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"delete"
+							]
+						},
+						"description": "Delete a user uploaded document"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Delete Documents",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "documents[]",
+									"value": "04b71c46-7efa-491c-ada9-aa539f9931a4",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/batchdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"batchdelete"
+							]
+						},
+						"description": "Delete user's multiple uploaded documents"
+					},
+					"response": []
+				},
+				{
+					"name": "Restore A Document",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "04b71c46-7efa-491c-ada9-aa539f9931a4",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/restore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"restore"
+							]
+						},
+						"description": "Restore a user deleted document"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Restore Documents",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "documents[]",
+									"value": "04b71c46-7efa-491c-ada9-aa539f9931a4",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/batchrestore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"batchrestore"
+							]
+						},
+						"description": "Restore user's multiple deleted documents"
+					},
+					"response": []
+				},
+				{
+					"name": "Permanently Delete A Document",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "04b71c46-7efa-491c-ada9-aa539f9931a4",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/permanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"permanentdelete"
+							]
+						},
+						"description": "Permanently delete a user uploaded document (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Permanently Delete Documents",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "documents[]",
+									"value": "04b71c46-7efa-491c-ada9-aa539f9931a4",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/batchpermanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"batchpermanentdelete"
+							]
+						},
+						"description": "Permanently delete user's multiple uploaded documents (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Api Document Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/document/test",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"document",
+								"test"
+							]
+						},
+						"description": "This retruns a messsage"
+					},
+					"response": []
+				}
+			],
+			"description": "Documents routes",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a0c15a33-7108-40e0-9b8f-abcfd5540212",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "fd5912d4-66c4-497c-be68-f2b3b4c05ed2",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Comment",
+			"item": [
+				{
+					"name": "Get All Comments",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/index?properties=true",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"index"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts only 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional"
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all comments"
+					},
+					"response": []
+				},
+				{
+					"name": "Get All User Uploaded Comments",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": []
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/personal?properties=true",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"personal"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts only 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional"
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"description": "Optional",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Get all comments made by user"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Flagged Comment",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/index?properties=true&page=2",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"index"
+							],
+							"query": [
+								{
+									"key": "status",
+									"value": "0",
+									"description": "Accepts only 1 or 0 also optional",
+									"disabled": true
+								},
+								{
+									"key": "properties",
+									"value": "true",
+									"description": "Optional"
+								},
+								{
+									"key": "deleted",
+									"value": "true",
+									"description": "Optional",
+									"disabled": true
+								},
+								{
+									"key": "page",
+									"value": "2",
+									"description": "Optional"
+								}
+							]
+						},
+						"description": "Get all flagged comments"
+					},
+					"response": []
+				},
+				{
+					"name": "Upload A Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "past_question_id",
+									"value": "01476288-3106-4b3d-b5ee-9a1c02935ee1",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "comment",
+									"value": "This is my first test comment",
+									"description": "Required if @reply input is empty or null",
+									"type": "text"
+								},
+								{
+									"key": "reply",
+									"value": "",
+									"description": "Required if @comment input is empty or null",
+									"type": "text",
+									"disabled": true
+								},
+								{
+									"key": "parent_comment_id",
+									"value": "",
+									"description": "Required if @reply input is set",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/create",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"create"
+							]
+						},
+						"description": "Save user uploaded Comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Show Comment",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/show?id=3d62e329-2be9-4fd9-8169-68d1a0b0e1be",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"show"
+							],
+							"query": [
+								{
+									"key": "id",
+									"value": "3d62e329-2be9-4fd9-8169-68d1a0b0e1be",
+									"description": "Required"
+								}
+							]
+						},
+						"description": "Show a specific comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Edit A Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "id",
+									"value": "296ef1c4-8967-41a5-be2b-a1bd30b2809e",
+									"description": "Required",
+									"type": "text"
+								},
+								{
+									"key": "comment",
+									"value": "This is my first edit",
+									"description": "Required if @reply input is empty or null",
+									"type": "text"
+								},
+								{
+									"key": "reply",
+									"value": "This is a logic test",
+									"description": "Required if @comment input is empty or null",
+									"type": "text",
+									"disabled": true
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/edit",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"edit"
+							]
+						},
+						"description": "Edit a user submitted comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete A Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "296ef1c4-8967-41a5-be2b-a1bd30b2809e",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/delete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"delete"
+							]
+						},
+						"description": "Delete a user uploaded comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Delete Comments",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comments[]",
+									"value": "296ef1c4-8967-41a5-be2b-a1bd30b2809e",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/batchdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"batchdelete"
+							]
+						},
+						"description": "Delete user's multiple uploaded comments"
+					},
+					"response": []
+				},
+				{
+					"name": "Restore A Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "296ef1c4-8967-41a5-be2b-a1bd30b2809e",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/restore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"restore"
+							]
+						},
+						"description": "Restore a user deleted comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Restore Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comments[]",
+									"value": "296ef1c4-8967-41a5-be2b-a1bd30b2809e",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/batchrestore",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"batchrestore"
+							]
+						},
+						"description": "Restore user's multiple deleted comments"
+					},
+					"response": []
+				},
+				{
+					"name": "Permanently Delete A Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "id",
+									"value": "296ef1c4-8967-41a5-be2b-a1bd30b2809e",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/permanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"permanentdelete"
+							]
+						},
+						"description": "Permanently delete a user uploaded comment (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Batch Permanently Delete Comments",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"type": "text",
+								"value": "application/x-www-form-urlencoded"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comments[]",
+									"value": "296ef1c4-8967-41a5-be2b-a1bd30b2809e",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/batchpermanentdelete",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"batchpermanentdelete"
+							]
+						},
+						"description": "Permanently delete user's multiple uploaded comments (LEVEL 3)"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Api Comment Routes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/comment/test",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"comment",
+								"test"
+							]
+						},
+						"description": "This retruns a messsage"
+					},
+					"response": []
+				}
+			],
+			"description": "Comment routes",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"id": "a3754463-168e-401e-84ff-64f60d402027",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"id": "f1cc7c69-5fd7-460a-80fd-0b4bfa6cc38e",
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			],
+			"protocolProfileBehavior": {}
+		},
+		{
+			"name": "Social",
+			"item": [
+				{
+					"name": "Up Vote A Past Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "past_question_id",
+									"value": "e6ed658e-578e-4954-ad07-7caf6d344d4d",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/social/upvote",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"social",
+								"upvote"
+							]
+						},
+						"description": "Up vote a user uploaded past question"
+					},
+					"response": []
+				},
+				{
+					"name": "Down Vote A Past Question",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "past_question_id",
+									"value": "e6ed658e-578e-4954-ad07-7caf6d344d4d",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/social/downvote",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"social",
+								"downvote"
+							]
+						},
+						"description": "Down vote a user uploaded past question"
+					},
+					"response": []
+				},
+				{
+					"name": "Flag a Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"name": "Content-Type",
+								"value": "application/x-www-form-urlencoded",
+								"type": "text"
+							}
+						],
+						"body": {
+							"mode": "urlencoded",
+							"urlencoded": [
+								{
+									"key": "comment_id",
+									"value": "e6ed658e-578e-4954-ad07-7caf6d344d4d",
+									"description": "Required",
+									"type": "text"
+								}
+							]
+						},
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/social/flagcomment",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"social",
+								"flagcomment"
+							]
+						},
+						"description": "Flag a user uploaded comment"
+					},
+					"response": []
+				},
+				{
+					"name": "Test Api Comment Routes Copy",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "https://pastquestions.xyz/api/v1/social/test",
+							"protocol": "https",
+							"host": [
+								"pastquestions",
+								"xyz"
+							],
+							"path": [
+								"api",
+								"v1",
+								"social",
+								"test"
+							]
+						},
+						"description": "This retruns a messsage"
+					},
+					"response": []
+				}
+			],
+			"description": "Social Routes",
+			"protocolProfileBehavior": {}
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJodHRwOlwvXC8xMjcuMC4wLjE6ODAwMFwvYXBpXC92MVwvYXV0aFwvbG9naW4iLCJpYXQiOjE1NzMzMjQzNTYsImV4cCI6MTU3MzM0NTk1NiwibmJmIjoxNTczMzI0MzU2LCJqdGkiOiJDUHpXQm16VUp6eEVWN2c1Iiwic3ViIjoiZjdlMzc3MzUtMjMwZS00YzA2LWIwNmQtY2QxYmQwNTMwMmVkIiwicHJ2IjoiMjNiZDVjODk0OWY2MDBhZGIzOWU3MDFjNDAwODcyZGI3YTU5NzZmNyJ9.do2EmnMUde6uxaTQqGA0zsrQq2nUDw1NFBNwNH2wEVI",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"id": "0f558999-2b6b-42fa-8ebf-75d094422bbc",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"id": "fff8aaf7-907b-481a-a076-fe93bba0040d",
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"protocolProfileBehavior": {}
+}
