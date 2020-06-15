@@ -4,11 +4,25 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Cache;
 use App\Models\PastQuestion;
 use App\Helpers\Helper;
 
 class GeneralController extends Controller
 {
+    /**
+     * Create a new DocumentController instance.
+     *
+     * @return void
+     */
+    public function __construct()
+    {
+        $this->middleware('auth:api',['only' => ['destroyUniversities']]);
+        $this->middleware("VerifyRankToken:$this->USER_LEVEL_3", [
+            'only' => ['destroyUniversities']
+        ]);
+    }
+
     /**
      * Display a listing of the resource.
      *
@@ -131,16 +145,37 @@ class GeneralController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  string  $id
+     * @param void
      * @return \Illuminate\Http\Response
      */
     public function showUniversities()
     {
-        // Retrieve universities from json file
-        $contents = file_get_contents('../dependencies/universities.json');
-        $universities_list = collect(json_decode($contents, true));
+        $universities_list = Cache::remember('universities', 43200, function () {
+            
+            // Retrieve universities from json file
+            $contents = file_get_contents('../dependencies/universities.json');
+            return collect(json_decode($contents, true));
+        });
 
         // Return success
         return $this->success($universities_list);
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param void
+     * @return \Illuminate\Http\Response
+     */
+    public function destroyUniversities()
+    {
+        if (Cache::forget('universities')) {
+
+            // Return success
+            return $this->actionSuccess('Cleared universities from cache');
+        } else {
+            // Return success
+            return $this->requestConflict('Unable to clear universities from cache');
+        }
     }
 }

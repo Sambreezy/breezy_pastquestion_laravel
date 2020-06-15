@@ -31,7 +31,7 @@ Route::group([
     Route::post('me', 'AuthController@me');
     Route::get('verify', 'AuthController@verifyEmail');
     Route::get('test', function(){
-        return response()->json('See https://github.com/bobbyaxe61',200);
+        return response()->json('See https://documenter.getpostman.com/view/6713287/SzmiXbug',200);
     });
     
     // Socialite Routes
@@ -62,7 +62,7 @@ Route::group([
     Route::delete('permanentdelete', 'UserController@permanentDestroy');
     Route::delete('batchpermanentdelete', 'UserController@batchPermanentDestroy');
     Route::get('test', function(){
-        return response()->json('See https://github.com/bobbyaxe61',200);
+        return response()->json('See https://documenter.getpostman.com/view/6713287/SzmiXbug',200);
     });
 
 });
@@ -89,7 +89,7 @@ Route::group([
     Route::delete('permanentdelete', 'PastQuestionController@permanentDestroy');
     Route::delete('batchpermanentdelete', 'PastQuestionController@batchPermanentDestroy');
     Route::get('test', function(){
-        return response()->json('See https://github.com/bobbyaxe61',200);
+        return response()->json('See https://documenter.getpostman.com/view/6713287/SzmiXbug',200);
     });
 
 });
@@ -114,7 +114,7 @@ Route::group([
     Route::delete('permanentdelete', 'ImageController@permanentDestroy');
     Route::delete('batchpermanentdelete', 'ImageController@batchPermanentDestroy');
     Route::get('test', function(){
-        return response()->json('See https://github.com/bobbyaxe61',200);
+        return response()->json('See https://documenter.getpostman.com/view/6713287/SzmiXbug',200);
     });
 
 });
@@ -139,7 +139,7 @@ Route::group([
     Route::delete('permanentdelete', 'DocumentController@permanentDestroy');
     Route::delete('batchpermanentdelete', 'DocumentController@batchPermanentDestroy');
     Route::get('test', function(){
-        return response()->json('See https://github.com/bobbyaxe61',200);
+        return response()->json('See https://documenter.getpostman.com/view/6713287/SzmiXbug',200);
     });
 
 });
@@ -165,7 +165,7 @@ Route::group([
     Route::delete('permanentdelete', 'CommentController@permanentDestroy');
     Route::delete('batchpermanentdelete', 'CommentController@batchPermanentDestroy');
     Route::get('test', function(){
-        return response()->json('See https://github.com/bobbyaxe61',200);
+        return response()->json('See https://documenter.getpostman.com/view/6713287/SzmiXbug',200);
     });
 
 });
@@ -180,9 +180,10 @@ Route::group([
     // General Routes
     Route::get('index', 'GeneralController@index');
     Route::post('contactus', 'GeneralController@sendContactUsMessage');
-    Route::get('universities', 'GeneralController@showUniversities');
+    Route::get('universities/show', 'GeneralController@showUniversities');
+    Route::get('universities/clear', 'GeneralController@destroyUniversities');
     Route::get('test', function(){
-        return response()->json('See https://github.com/bobbyaxe61',200);
+        return response()->json('See https://documenter.getpostman.com/view/6713287/SzmiXbug',200);
     });
 
 });
@@ -199,7 +200,7 @@ Route::group([
     Route::post('downvote', 'SocialController@downVote');
     Route::post('flagcomment', 'SocialController@flagComment');
     Route::get('test', function(){
-        return response()->json('See https://github.com/bobbyaxe61',200);
+        return response()->json('See https://documenter.getpostman.com/view/6713287/SzmiXbug',200);
     });
 
 });
