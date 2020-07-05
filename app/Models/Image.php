@@ -59,7 +59,7 @@ class Image extends Model
         parent::boot();
 
         self::creating(function ($model) {
-            $model->id = Uuid::uuid4()->toString();
+            $model->id = (string) Str::uuid();
         });
     }
 

@@ -67,7 +67,7 @@ class PastQuestion extends Model
 
         // While creating this model make an id
         static::creating(function (self $model) {
-            $model->id = Uuid::uuid4()->toString();            
+            $model->id = (string) Str::uuid();            
         });
 
         // While deleting this model delete some of its related models

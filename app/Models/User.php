@@ -82,7 +82,7 @@ class User extends Authenticatable implements JWTSubject
         parent::boot();
 
         self::creating(function ($model) {
-            $model->id = Uuid::uuid4()->toString();
+            $model->id = (string) Str::uuid();
         });
     }
 
